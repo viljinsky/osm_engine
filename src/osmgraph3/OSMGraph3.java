@@ -16,6 +16,7 @@ import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -26,6 +27,7 @@ import java.util.EventObject;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.StringJoiner;
@@ -50,6 +52,46 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
+
+class Member {
+
+    String type;
+    String role;
+    long ref;
+
+    public String toString() {
+        return String.format("member %s %s %s", type, ref, role);
+    }
+
+}
+
+class Relation extends ArrayList<Member> implements TagsObject {
+
+    Tags tags;
+    long id;
+
+    @Override
+    public void put(String key, Object value) {
+        if (tags == null) {
+            tags = new Tags();
+        }
+        tags.put(key, value);
+    }
+
+    @Override
+    public Object get(String key) {
+        return tags == null || !tags.containsKey(key) ? null : tags.get(key);
+    }
+
+    @Override
+    public Set<String> keySet() {
+        return tags == null ? new HashSet<>() : tags.keySet();
+    }
+
+    public String toString() {
+        return String.format("relation %d : %d", id, size());
+    }
+}
 
 class Tags extends HashMap<String, Object> {
 
@@ -114,16 +156,18 @@ class Node implements TagsObject {
 
     @Override
     public boolean equals(Object obj) {
-        if(obj == null) return false;
-        if (obj == this) return true;
-        if(obj instanceof Node){
-            Node other = (Node)obj;
+        if (obj == null) {
+            return false;
+        }
+        if (obj == this) {
+            return true;
+        }
+        if (obj instanceof Node) {
+            Node other = (Node) obj;
             return lon == other.lon && lat == other.lat;
         }
         return false;
     }
-    
-    
 
 }
 
@@ -146,11 +190,11 @@ class Way extends ArrayList<Node> implements TagsObject {
 
     CharSequence write(OutputStreamWriter writer) {
         String result = "";
-        
-        for(Node node:this){
-            result+="'ref' : "+node.id+"\n";
+
+        for (Node node : this) {
+            result += "'ref' : " + node.id + "\n";
         }
-        
+
         return result;
     }
 
@@ -250,9 +294,13 @@ class GraphRenderer {
 
     public void render(Graphics g, boolean selected) {
         g.setColor(graph.color);
+
+        int xoffset = -(int) (graph.minlon * graph.zoom);
+        int yoffset = -(int) (graph.minlat * graph.zoom);
+
         for (Node node : graph.nodes) {
             Rectangle r = graph.nodeBound(node);
-            g.drawRect(r.x, r.y, r.width, r.height);
+            g.drawRect(xoffset + r.x, yoffset + r.y, r.width, r.height);
 
         }
 
@@ -262,27 +310,27 @@ class GraphRenderer {
 
             g.setColor(Color.LIGHT_GRAY);
             r = graph.wayBound(way);
-            g.drawRect(r.x, r.y, r.width, r.height);
+            g.drawRect(xoffset + r.x, yoffset + r.y, r.width, r.height);
 
             for (Edge edge : way.edges()) {
                 g.setColor(graph.color);
-                int x1 = (int) (edge.node1.lon * graph.zoom);
-                int y1 = (int) (edge.node1.lat * graph.zoom);
-                int x2 = (int) (edge.node2.lon * graph.zoom);
-                int y2 = (int) (edge.node2.lat * graph.zoom);
+                int x1 = xoffset + (int) (edge.node1.lon * graph.zoom);
+                int y1 = yoffset + (int) (edge.node1.lat * graph.zoom);
+                int x2 = xoffset + (int) (edge.node2.lon * graph.zoom);
+                int y2 = yoffset + (int) (edge.node2.lat * graph.zoom);
                 g.drawLine(x1, y1, x2, y2);
 
                 r = graph.nodeBound(edge.center());
-                g.drawLine(r.x, r.y, r.x + r.width, r.y + r.height);
-                g.drawLine(r.x, r.y + r.height, r.x + r.width, r.y);
+                g.drawLine(xoffset + r.x, yoffset + r.y, xoffset + r.x + r.width, yoffset + r.y + r.height);
+                g.drawLine(xoffset + r.x, yoffset + r.y + r.height, xoffset + r.x + r.width, yoffset + r.y);
             }
 
             if (way.size() > 2) {
                 g.setColor(Color.LIGHT_GRAY);
                 Node center = graph.wayCenter(way);
                 r = graph.nodeBound(center);
-                g.drawLine(r.x - 3, r.y - 3, r.x + 3, r.y + 3);
-                g.drawLine(r.x - 3, r.y + 3, r.x + 3, r.y - 3);
+                g.drawLine(xoffset+r.x - 3, yoffset+r.y - 3, xoffset+r.x + 3, yoffset+r.y + 3);
+                g.drawLine(xoffset+r.x - 3, yoffset+r.y + 3, xoffset+r.x + 3, yoffset+r.y - 3);
             }
 
         }
@@ -315,15 +363,23 @@ class Graph implements TagsObject {
     }
 
     double zoom = 100.0;
+    double minlon;
+    double minlat;
+    double maxlon;
+    double maxlat;
+    int xOffset = 0;
+    int yOffset = 0;
 
     Color color = Color.ORANGE;
 
     protected NodeList nodeList;
     protected WayList wayList;
+    protected RelationList relationList;
 
     Tags tags;
-    ArrayList<Node> nodes = new ArrayList<>();
-    ArrayList<Way> ways = new ArrayList<>();
+    List<Node> nodes = new ArrayList<>();
+    List<Way> ways = new ArrayList<>();
+    List<Relation> relations = new ArrayList<>();
 
     public Graph() {
     }
@@ -365,10 +421,15 @@ class Graph implements TagsObject {
     }
 
     void clear() {
-        nodes.clear();
-        ways.clear();
+        relations.clear();
+        relationList.clear();
+        
+        ways.clear();        
         wayList.clear();
-        nodeList.clear();
+        
+        nodes.clear();
+        nodeList.clear(); 
+               
         change();
     }
 
@@ -379,30 +440,28 @@ class Graph implements TagsObject {
         way.id = ++last_way;
         way.put("key", "tag");
         way.put("key", way.id);
-        for(Node node:way){
-            if (!nodes.contains(node)){
+        for (Node node : way) {
+            if (!nodes.contains(node)) {
                 node.id = ++last_node;
                 nodes.add(node);
             }
         }
         ways.add(way);
-        if(wayList!=null){
+        if (wayList != null) {
             wayList.add(way);
         }
         change();
 
     }
 
-    
     //------------------------- n o d e s   ------------------------------------
-
     int last_node = -1;
 
     public Node add(Node node) {
         node.id = ++last_node;
         node.put("key", "value");
         nodes.add(node);
-        if(nodeList!=null){
+        if (nodeList != null) {
             nodeList.add(node);
         }
         change();
@@ -420,8 +479,10 @@ class Graph implements TagsObject {
      * @return Новый нод
      */
     Node node(Point point) {
-        double lon = point.x / zoom;
-        double lat = point.y / zoom;
+
+//        double lonoffset = minlat
+        double lon = minlon + point.x / zoom;
+        double lat = minlat + point.y / zoom;
         return new Node(lon, lat);
     }
 
@@ -436,8 +497,8 @@ class Graph implements TagsObject {
     }
 
     Rectangle nodeBound(Node node) {
-        int x = (int) (node.lon * zoom);
-        int y = (int) (node.lat * zoom);
+        int x = (int) ((node.lon) * zoom);
+        int y = (int) ((node.lat) * zoom);
         return new Rectangle(x - 3, y - 3, 6, 6);
     }
 
@@ -477,8 +538,8 @@ class Graph implements TagsObject {
     }
 
     void read(InputStream in) {
-        
-/*
+
+        /*
         {'raph':{
         tag :{'k':'color','v',#FF4466},
             'node':[
@@ -487,34 +548,31 @@ class Graph implements TagsObject {
             ],
             'way':[],
         }}
-        */     
-        
+         */
         color = Color.BLUE;
-        
-        add(new Node(1,1));
-        add(new Node(2,1));
-        add(new Node(2,2));
-        add(new Node(1,2));
-        add(new Node(1,1));
-        
+
+        add(new Node(1, 1));
+        add(new Node(2, 1));
+        add(new Node(2, 2));
+        add(new Node(1, 2));
+        add(new Node(1, 1));
+
         Way way = new Way();
-        way.add(new Node(3,1));
-        way.add(new Node(4,1));
-        way.add(new Node(4,2));
-        way.add(new Node(3,2));
-        way.add(new Node(3,1));
+        way.add(new Node(3, 1));
+        way.add(new Node(4, 1));
+        way.add(new Node(4, 2));
+        way.add(new Node(3, 2));
+        way.add(new Node(3, 1));
         way.put("color", Color.PINK);
         way.put("type", "border");
         add(way);
-        Node center =wayCenter(way);
+        Node center = wayCenter(way);
         center.put("type", "center");
         add(center);
-        
-        
-        
+
     }
-    
-    void write(OutputStream out){
+
+    void write(OutputStream out) {
     }
 
 }
@@ -627,11 +685,19 @@ class BrowserMouseAdapter extends MouseAdapter {
 
     @Override
     public void mousePressed(MouseEvent e) {
-        Node node = graph.nodeAt(e.getPoint());
+
+        int xoffset = (int) (graph.minlon * graph.zoom);
+        int yoffset = (int) (graph.minlat * graph.zoom);
+        Point p = new Point(xoffset + e.getX(), yoffset + e.getY());
+//        System.out.println(p2);
+
+//        Point p = new Point(e.getPoint());
+        Node node = graph.nodeAt(p);
+
         switch (mode) {
             case MODE0:
                 for (Way w : graph.ways) {
-                    if (graph.nodeBound(graph.wayCenter(w)).contains(e.getPoint())) {
+                    if (graph.nodeBound(graph.wayCenter(w)).contains(p)) {
                         way1 = w;
                         System.out.println("" + way1);
                         return;
@@ -653,7 +719,7 @@ class BrowserMouseAdapter extends MouseAdapter {
                     for (Way w : graph.ways) {
                         for (Edge edge : w.edges()) {
                             Rectangle r = graph.nodeBound(edge.center());
-                            if (r.contains(e.getPoint())) {
+                            if (r.contains(p /*e.getPoint()*/)) {
                                 graph.add(edge.center());
                                 w.add(w.indexOf(edge.node2), edge.center());
                                 return;
@@ -722,6 +788,8 @@ class Browser extends JComponent implements ChangeListener {
 
     NodeList nodeList = new NodeList();
 
+    RelationList relationList = new RelationList();
+
     BrowserMouseAdapter mouseAdapter;
 
     @Override
@@ -733,7 +801,10 @@ class Browser extends JComponent implements ChangeListener {
 
         this.graph = graph;
         if (graph != null) {
+//            graph.zoom = getWidth() / (graph.maxlon - graph.minlon);
+            zoom = getHeight() / (graph.maxlat - graph.minlat);
             graph.zoom = zoom;
+
             graph.nodeList = nodeList;
             nodeList.clear();
             for (Node node : graph.nodes) {
@@ -746,6 +817,12 @@ class Browser extends JComponent implements ChangeListener {
                 wayList.add(way);
             }
 
+            graph.relationList = relationList;
+            relationList.clear();
+            for (Relation r : graph.relations) {
+                relationList.add(r);
+            }
+
             graph.addChangeListener(this);
             if (mouseAdapter != null) {
                 removeMouseListener(mouseAdapter);
@@ -755,6 +832,10 @@ class Browser extends JComponent implements ChangeListener {
             setMode(BrowserMouseAdapter.MODE0);
             addMouseListener(mouseAdapter);
             addMouseMotionListener(mouseAdapter);
+        } else {
+            nodeList.clear();
+            wayList.clear();
+            relationList.clear();
         }
         repaint();
 
@@ -781,18 +862,28 @@ class Browser extends JComponent implements ChangeListener {
     }
 
     int mode;
+
     double zoom = 100.0;
 
     public double getZoom() {
         return zoom;
     }
 
+    void zoom_in() {
+        setZoom(zoom * 2.0);
+    }
+
+    void zoom_out() {
+        setZoom(zoom * 0.5);
+    }
+    
     public void setZoom(double zoom) {
         this.zoom = zoom;
-        if (graph != null) {
+        for(Graph graph:graphList){
             graph.zoom = zoom;
-            graph.change();
         }
+        repaint();
+        System.out.println("zoom" + zoom);
     }
 
     void setMode(int mode) {
@@ -802,56 +893,6 @@ class Browser extends JComponent implements ChangeListener {
         }
     }
 
-    void zoom_in() {
-        setZoom(zoom + 10.0);
-    }
-
-    void zoom_out() {
-        setZoom(zoom - 10.0);
-    }
-
-//    void write(OutputStream out) throws Exception {
-//        try (OutputStreamWriter writer = new OutputStreamWriter(out, "utf-8")) {
-//            for (Graph g : graphList) {
-//                
-//                writer.write("{'graph' : {\n");
-//                
-//                for(Node node:g.nodes){
-//                    writer.write("\t{"+node.toString()+"},\n");
-//                }
-//                
-//                writer.write("{'way' : [");
-//                for(Way way: g.ways){
-////                    writer.write("{\n");
-//                    for(Node n:way){
-//                        writer.write("\t'ref' : "+n.id+"\n");
-//                    }
-//                    writer.write("}\n");                    
-//                }
-//                writer.write("]\n");
-//                
-//                if (g.tags!=null){
-//                    for(String key:g.keySet()){
-//                        writer.write("'tag' : {'k' : "+key+", 'v':"+g.get(key)+"}\n");
-//                    }
-//                }
-//                
-//                writer.write("}\n");
-//
-//                
-//            }
-//        }
-//    }
-
-//    Graph read(InputStream in) throws Exception {
-//        Graph graph = new Graph(Color.yellow);
-//        Way way = new Way();
-//        way.add(new Node(1,0));
-//        way.add(new Node(1,1));
-//        way.add(new Node(2,0));
-//        graph.add(way);
-//        return graph;
-//    }
 
 }
 
@@ -888,31 +929,34 @@ class StatausBar extends Container {
 }
 
 // #############################################################################
-
-interface GraphElement{
+interface GraphElement {
 }
-class GraphEvent extends EventObject{
-    
+
+class GraphEvent extends EventObject {
+
     public static final int CHANGE = 0;
     public static final int ADD = 1;
     public static final int REMOVE = 2;
-    
+
     GraphElement element;
     int eventType;
-    
+
     public GraphEvent(Object source) {
         super(source);
     }
-    
-    public GraphEvent(Object source,GraphElement element,int eventType){
+
+    public GraphEvent(Object source, GraphElement element, int eventType) {
         super(source);
         this.eventType = eventType;
         this.element = element;
     }
-    
+
 }
-interface GrpahChangeListener extends ChangeListener{
+
+interface GrpahChangeListener extends ChangeListener {
+
     public void add(GraphEvent e);
+
     public void remove(GraphEvent e);
 }
 
@@ -1009,6 +1053,31 @@ class GraphList extends JList<Graph> implements Iterable<Graph> {
 
 }
 
+class RelationList extends JList<Relation> {
+
+    DefaultListModel<Relation> model = new DefaultListModel<>();
+
+    public RelationList() {
+        setModel(model);
+    }
+
+    public void add(Relation relation) {
+        model.addElement(relation);
+    }
+
+    public void remove(Relation relation) {
+        model.removeElement(relation);
+    }
+
+    public JComponent view() {
+        return new JScrollPane(this);
+    }
+
+    public void clear() {
+        model.removeAllElements();
+    }
+}
+
 class TagEditor extends JComponent implements CommandManager.CommandListener {
 
     public static final String ADD = "add";
@@ -1056,8 +1125,10 @@ class TagEditor extends JComponent implements CommandManager.CommandListener {
         while (model.getRowCount() > 0) {
             model.removeRow(0);
         }
-        for (String key : tags.keySet()) {
-            model.addRow(new Object[]{key, tags.get(key)});
+        if (tags != null) {
+            for (String key : tags.keySet()) {
+                model.addRow(new Object[]{key, tags.get(key)});
+            }
         }
     }
 
@@ -1089,6 +1160,8 @@ class App extends Container implements CommandManager.CommandListener {
     Color[] colors = {Color.BLUE, Color.CYAN, Color.MAGENTA, Color.YELLOW};
     int colorIndex = 0;
 
+    Graph graph;
+
     @Override
     public void doCommand(String command) {
         try {
@@ -1112,8 +1185,15 @@ class App extends Container implements CommandManager.CommandListener {
                     browser.graph.clear();
                     break;
                 case ADD:
-                    Graph graph = new Graph(colors[colorIndex++ % 4]);
-                    graph.put("color", graph.color);
+                    graph = new Graph(Color.BLUE);
+                    graph.minlon = .0;
+                    graph.minlat = .0;
+                    graph.maxlon = 3.0;
+                    graph.maxlat = 3.0;
+                    graph.add(new Node(1.0, 1.0));
+                    graph.add(new Node(2.0, 1.0));
+                    graph.add(new Node(2.0, 2.0));
+                    graph.add(new Node(1.0, 2.0));
                     graphList.add(graph);
                     break;
 
@@ -1123,12 +1203,18 @@ class App extends Container implements CommandManager.CommandListener {
                     graphList.remove(browser.graph);
                     break;
                 case READ:
-                    try (InputStream in = getClass().getResourceAsStream("/SMMGraph3/grpah")) {
-                      graph = new Graph();
-                      graph.read(in);
-                      graphList.add(graph);
 
-                }
+                    OSMParser parser = new OSMParser(new File("C:\\Users\\viljinsky\\Desktop", "test.osm"));
+                    graph = new Graph();
+                    graph.nodes = parser.nodes;
+                    graph.ways = parser.ways;
+                    graph.relations = parser.relations;
+                    graph.maxlon = parser.maxlon;
+                    graph.maxlat = parser.maxlat;
+                    graph.minlon = parser.minlon;
+                    graph.minlat = parser.minlat;
+                    graphList.add(graph);
+                    break;
                 case WRITE:
                     
                       try (OutputStream out = new OutputStream() {
@@ -1152,12 +1238,15 @@ class App extends Container implements CommandManager.CommandListener {
 
     CommandManager commandManager = new CommandManager(this, ADD, EDIT, DELETE, null, ZOOM_IN, ZOOM_OUT, null, MODE0, MODE1, MODE2, null, CLEAR, null, READ, WRITE);
 
+    //RelationList relationList = new RelationList();
     GraphList graphList = new GraphList();
     Browser browser = new Browser(graphList);
     NodeList nodeList = browser.nodeList;//new NodeList();
     WayList wayList = browser.wayList;//new WayList();
+    RelationList relationList = browser.relationList;
+
     TagEditor tagEditor = new TagEditor();
-    SideBar sideBar = new SideBar(graphList.view(), wayList.view(), nodeList.view(), tagEditor.view());
+    SideBar sideBar = new SideBar(graphList.view(), wayList.view(), nodeList.view(), relationList.view(), tagEditor.view());
 
     JComponent commandBar = commandManager.commandBar();
 
@@ -1185,6 +1274,7 @@ class App extends Container implements CommandManager.CommandListener {
 
         graphList.addListSelectionListener(tagsListener);
         nodeList.addListSelectionListener(tagsListener);
+        relationList.addListSelectionListener(tagsListener);
         wayList.addListSelectionListener(tagsListener);
 
         setLayout(new BorderLayout());
