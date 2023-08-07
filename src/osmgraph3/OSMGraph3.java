@@ -261,29 +261,6 @@ class Way extends ArrayList<Node> implements TagsObject {
     }
 }
 
-//class GraphEvent extends EventObject {
-//
-//    public static final int NODE_ADD = 1;
-//    public static final int NODE_DELETE = 1;
-//    public static final int WAY_ADD = 1;
-//    public static final int WAY_DELETE = 1;
-//
-//    int event_type;
-//
-//    public GraphEvent(Object source) {
-//        super(source);
-//    }
-//
-//    public GraphEvent(Object source, int event_type) {
-//        super(source);
-//        this.event_type = event_type;
-//    }
-//
-//}
-//
-//interface GraphChangeListener extends EventListener {
-//
-//}
 class GraphRenderer {
 
     Graph graph;
@@ -329,8 +306,8 @@ class GraphRenderer {
                 g.setColor(Color.LIGHT_GRAY);
                 Node center = graph.wayCenter(way);
                 r = graph.nodeBound(center);
-                g.drawLine(xoffset+r.x - 3, yoffset+r.y - 3, xoffset+r.x + 3, yoffset+r.y + 3);
-                g.drawLine(xoffset+r.x - 3, yoffset+r.y + 3, xoffset+r.x + 3, yoffset+r.y - 3);
+                g.drawLine(xoffset + r.x - 3, yoffset + r.y - 3, xoffset + r.x + 3, yoffset + r.y + 3);
+                g.drawLine(xoffset + r.x - 3, yoffset + r.y + 3, xoffset + r.x + 3, yoffset + r.y - 3);
             }
 
         }
@@ -423,13 +400,13 @@ class Graph implements TagsObject {
     void clear() {
         relations.clear();
         relationList.clear();
-        
-        ways.clear();        
+
+        ways.clear();
         wayList.clear();
-        
+
         nodes.clear();
-        nodeList.clear(); 
-               
+        nodeList.clear();
+
         change();
     }
 
@@ -642,6 +619,26 @@ class CommandManager extends ArrayList<Action> {
 }
 
 //######################  I N T E R F A C E #######################
+
+class GraphListener extends MouseAdapter {
+
+    Browser browser;
+
+    public GraphListener(Browser browser) {
+        this.browser = browser;
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+        Node node = browser.nodeAt(e.getPoint());
+        if (node!=null){
+            browser.onClickNode(node);
+        }
+    }
+
+}
+
+
 class BrowserMouseAdapter extends MouseAdapter {
 
     public static final int MODE0 = 0;
@@ -780,6 +777,10 @@ class BrowserMouseAdapter extends MouseAdapter {
 
 class Browser extends JComponent implements ChangeListener {
 
+    int mode;
+
+    double zoom = 100.0;
+
     Graph graph;
 
     Iterable<Graph> graphList;
@@ -799,29 +800,28 @@ class Browser extends JComponent implements ChangeListener {
 
     public void setGraph(Graph graph) {
 
-        this.graph = graph;
         if (graph != null) {
 //            graph.zoom = getWidth() / (graph.maxlon - graph.minlon);
             zoom = getHeight() / (graph.maxlat - graph.minlat);
             graph.zoom = zoom;
 
-            graph.nodeList = nodeList;
             nodeList.clear();
             for (Node node : graph.nodes) {
                 nodeList.add(node);
             }
+            graph.nodeList = nodeList;
 
-            graph.wayList = wayList;
             wayList.clear();
             for (Way way : graph.ways) {
                 wayList.add(way);
             }
+            graph.wayList = wayList;
 
-            graph.relationList = relationList;
             relationList.clear();
             for (Relation r : graph.relations) {
                 relationList.add(r);
             }
+            graph.relationList = relationList;
 
             graph.addChangeListener(this);
             if (mouseAdapter != null) {
@@ -833,10 +833,16 @@ class Browser extends JComponent implements ChangeListener {
             addMouseListener(mouseAdapter);
             addMouseMotionListener(mouseAdapter);
         } else {
+            if (this.graph != null) {
+                removeMouseListener(mouseAdapter);
+                removeMouseMotionListener(mouseAdapter);
+                mouseAdapter = null;
+            }
             nodeList.clear();
             wayList.clear();
             relationList.clear();
         }
+        this.graph = graph;
         repaint();
 
     }
@@ -861,10 +867,6 @@ class Browser extends JComponent implements ChangeListener {
         }
     }
 
-    int mode;
-
-    double zoom = 100.0;
-
     public double getZoom() {
         return zoom;
     }
@@ -876,10 +878,10 @@ class Browser extends JComponent implements ChangeListener {
     void zoom_out() {
         setZoom(zoom * 0.5);
     }
-    
+
     public void setZoom(double zoom) {
         this.zoom = zoom;
-        for(Graph graph:graphList){
+        for (Graph graph : graphList) {
             graph.zoom = zoom;
         }
         repaint();
@@ -892,7 +894,23 @@ class Browser extends JComponent implements ChangeListener {
             mouseAdapter.mode = mode;
         }
     }
+    
+    //--------------------------------------------------------------------------
+    
+    Node nodeAt(Point p){
+        if (graph!= null){
+            int xoffset = (int) (graph.minlon * graph.zoom);
+            int yoffset = (int) (graph.minlat * graph.zoom);
+            Point p1 = new Point(xoffset + p.x, yoffset + p.y);
+            return graph.nodeAt(p1);
+            
+        }
+        return null;
+    }
 
+    void onClickNode(Node node) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
 
 }
 
@@ -1238,14 +1256,38 @@ class App extends Container implements CommandManager.CommandListener {
 
     CommandManager commandManager = new CommandManager(this, ADD, EDIT, DELETE, null, ZOOM_IN, ZOOM_OUT, null, MODE0, MODE1, MODE2, null, CLEAR, null, READ, WRITE);
 
-    //RelationList relationList = new RelationList();
     GraphList graphList = new GraphList();
-    Browser browser = new Browser(graphList);
-    NodeList nodeList = browser.nodeList;//new NodeList();
-    WayList wayList = browser.wayList;//new WayList();
+    
+    Browser browser = new Browser(graphList){
+        @Override
+        void onClickNode(Node node) {
+            nodeList.setSelectedValue(node, true);
+
+
+            wayList.setSelectedIndex(-1);
+            for(Way way: graph.ways){
+                if (way.contains(node)){
+                    wayList.setSelectedValue(way, true);
+                }
+            }
+            
+            relationList.setSelectedIndex(-1);
+            for(Relation relation:graph.relations){
+                for(Member m:relation){
+                    if(m.ref == node.id){
+                        relationList.setSelectedValue(relation, true);
+                    }
+                }
+            }
+        }
+        
+    };
+    NodeList nodeList = browser.nodeList;
+    WayList wayList = browser.wayList;
     RelationList relationList = browser.relationList;
 
     TagEditor tagEditor = new TagEditor();
+
     SideBar sideBar = new SideBar(graphList.view(), wayList.view(), nodeList.view(), relationList.view(), tagEditor.view());
 
     JComponent commandBar = commandManager.commandBar();
@@ -1286,6 +1328,8 @@ class App extends Container implements CommandManager.CommandListener {
         add(commandBar, BorderLayout.PAGE_START);
         add(statausBar, BorderLayout.PAGE_END);
 
+        browser.addMouseListener(new GraphListener(browser));
+
     }
 
     public void execute() {
@@ -1302,19 +1346,23 @@ class App extends Container implements CommandManager.CommandListener {
         frame.setVisible(true);
 
     }
+
+    public static void main(String[] args) {
+        new App().execute();
+    }
 }
 
 /**
  *
  * @author viljinsky
  */
-public class OSMGraph3 {
-
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) {
-        new App().execute();
-    }
-
-}
+//public class OSMGraph3 {
+//
+//    /**
+//     * @param args the command line arguments
+//     */
+//    public static void main(String[] args) {
+//        new App().execute();
+//    }
+//
+//}
