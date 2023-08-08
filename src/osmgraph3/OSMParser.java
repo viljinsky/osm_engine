@@ -1,7 +1,4 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package osmgraph3;
 
 import java.io.File;
@@ -19,7 +16,7 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-public class OSMParser extends DefaultHandler {
+class OSMParser extends DefaultHandler {
 
     List<Relation> relations = new ArrayList<>();
     List<Node> nodes = new ArrayList<>();
