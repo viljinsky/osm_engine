@@ -10,6 +10,9 @@ import java.awt.event.MouseEvent;
 import javax.swing.JComponent;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import osmgraph3.controls.NodeList;
+import osmgraph3.controls.RelationList;
+import osmgraph3.controls.WayList;
 
 class GraphRenderer {
 
@@ -80,7 +83,8 @@ class BrowserMouseAdapter extends MouseAdapter {
 
     Way way;
     Way way1;
-    Node node1, node2;
+    Node node1;
+    Node node2;
 
     public void setMode(int mode) {
         this.mode = mode;
@@ -201,9 +205,9 @@ class Browser extends JComponent implements ChangeListener {
     double maxlat;
     Graph graph;
     Iterable<Graph> graphList;
-    WayList wayList = new WayList();
-    NodeList nodeList = new NodeList();
-    RelationList relationList = new RelationList();
+    public WayList wayList = new WayList();
+    public NodeList nodeList = new NodeList();
+    public RelationList relationList = new RelationList();
     BrowserMouseAdapter mouseAdapter;
 
     @Override

@@ -14,6 +14,9 @@ import javax.swing.JOptionPane;
 import javax.swing.JSplitPane;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import osmgraph3.controls.NodeList;
+import osmgraph3.controls.RelationList;
+import osmgraph3.controls.WayList;
 
 
 

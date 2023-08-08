@@ -13,6 +13,9 @@ import java.util.Set;
 import java.util.StringJoiner;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import osmgraph3.controls.NodeList;
+import osmgraph3.controls.RelationList;
+import osmgraph3.controls.WayList;
 
 interface TagsObject {
 
@@ -37,60 +40,6 @@ class Tags extends HashMap<String, Object> {
     }
 }
 
-class Node implements TagsObject {
-
-    Tags tags;
-    long id;
-    double lon;
-    double lat;
-
-    public Node(double lon, double lat) {
-        this.lon = lon;
-        this.lat = lat;
-    }
-
-    @Override
-    public String toString() {
-        return String.format(Locale.US, "node  %d : %8.6f %8.6f", id, lon, lat);
-    }
-
-    @Override
-    public Set<String> keySet() {
-        return (tags == null) ? new HashSet<>() : tags.keySet();
-    }
-
-    @Override
-    public void put(String key, Object value) {
-        if (tags == null) {
-            tags = new Tags();
-        }
-        tags.put(key, value);
-    }
-
-    @Override
-    public Object get(String key) {
-        if (tags == null || !tags.containsKey(key)) {
-            return null;
-        }
-        return tags.get(key);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == null) {
-            return false;
-        }
-        if (obj == this) {
-            return true;
-        }
-        if (obj instanceof Node) {
-            Node other = (Node) obj;
-            return lon == other.lon && lat == other.lat;
-        }
-        return false;
-    }
-
-}
 
 class Edge {
 
@@ -107,88 +56,6 @@ class Edge {
     }
 }
 
-class Way extends ArrayList<Node> implements TagsObject {
-
-    CharSequence write(OutputStreamWriter writer) {
-        String result = "";
-
-        for (Node node : this) {
-            result += "'ref' : " + node.id + "\n";
-        }
-
-        return result;
-    }
-
-    class EdgeIterator implements Iterator<Edge> {
-
-        int index = 0;
-
-        @Override
-        public boolean hasNext() {
-            return ++index < size();
-        }
-
-        @Override
-        public Edge next() {
-            return new Edge(get(index - 1), get(index));
-        }
-
-    }
-
-    long id;
-
-    Tags tags;
-
-    @Override
-    public void put(String key, Object value) {
-        if (tags == null) {
-            tags = new Tags();
-        }
-        tags.put(key, value);
-    }
-
-    @Override
-    public Object get(String key) {
-        if (tags == null || !tags.containsKey(key)) {
-            return null;
-        }
-        return tags.get(key);
-    }
-
-    @Override
-    public Set<String> keySet() {
-        return tags == null ? new HashSet<>() : tags.keySet();
-    }
-
-    Iterable<Edge> edges() {
-        return new Iterable<Edge>() {
-            @Override
-            public Iterator<Edge> iterator() {
-                return new EdgeIterator();
-            }
-        };
-    }
-
-    Node first() {
-        return isEmpty() ? null : get(0);
-    }
-
-    Node last() {
-        return isEmpty() ? null : get(size() - 1);
-    }
-
-    public String toString() {
-        return String.format(Locale.US, "way %d : %d nodes %s", id, size(),isClosed()?"closed":"");
-    }
-    
-    public void close(){
-        add(first());
-    }
-    
-    public boolean isClosed(){
-        return size()>1 && first().equals(last());
-    }
-}
 
 class Member {
 
@@ -202,36 +69,7 @@ class Member {
 
 }
 
-class Relation extends ArrayList<Member> implements TagsObject {
-
-    Tags tags;
-    long id;
-
-    @Override
-    public void put(String key, Object value) {
-        if (tags == null) {
-            tags = new Tags();
-        }
-        tags.put(key, value);
-    }
-
-    @Override
-    public Object get(String key) {
-        return tags == null || !tags.containsKey(key) ? null : tags.get(key);
-    }
-
-    @Override
-    public Set<String> keySet() {
-        return tags == null ? new HashSet<>() : tags.keySet();
-    }
-
-    public String toString() {
-        return String.format("relation %d : %d", id, size());
-    }
-}
-
-
-class Graph implements TagsObject {
+public class Graph implements TagsObject {
 
     GraphRenderer renderer = new GraphRenderer(this);
 

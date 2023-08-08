@@ -71,57 +71,7 @@ interface GrpahChangeListener extends ChangeListener {
 
 
 
-class NodeList extends JList<Node> {
 
-    JComponent view() {
-        return new JScrollPane(this);
-    }
-
-    DefaultListModel<Node> model = new DefaultListModel<>();
-
-    public NodeList() {
-        setModel(model);
-    }
-
-    public void add(Node node) {
-        model.addElement(node);
-    }
-
-    public void remove(Node node) {
-        model.removeElement(node);
-    }
-
-    public void clear() {
-        model.removeAllElements();
-    }
-
-}
-
-class WayList extends JList<Way> {
-
-    JComponent view() {
-        return new JScrollPane(this);
-    }
-
-    DefaultListModel<Way> model = new DefaultListModel<>();
-
-    public WayList() {
-        setModel(model);
-    }
-
-    public void add(Way way) {
-        model.addElement(way);
-    }
-
-    public void remove(Way way) {
-        model.removeElement(way);
-    }
-
-    void clear() {
-        model.removeAllElements();
-    }
-
-}
 
 
 class GraphList extends JList<Graph> implements Iterable<Graph> {
@@ -165,30 +115,6 @@ class GraphList extends JList<Graph> implements Iterable<Graph> {
 
 }
 
-class RelationList extends JList<Relation> {
-
-    DefaultListModel<Relation> model = new DefaultListModel<>();
-
-    public RelationList() {
-        setModel(model);
-    }
-
-    public void add(Relation relation) {
-        model.addElement(relation);
-    }
-
-    public void remove(Relation relation) {
-        model.removeElement(relation);
-    }
-
-    public JComponent view() {
-        return new JScrollPane(this);
-    }
-
-    public void clear() {
-        model.removeAllElements();
-    }
-}
 
 class TagEditor extends JComponent implements CommandManager.CommandListener {
 
