@@ -1,77 +1,27 @@
-package osmgraph3;
+package osmgraph3.graph;
 
 import java.awt.Color;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
-import java.util.StringJoiner;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import osmgraph3.controls.GraphRenderer;
 import osmgraph3.controls.NodeList;
 import osmgraph3.controls.RelationList;
 import osmgraph3.controls.WayList;
 
-interface TagsObject {
-
-    public void put(String key, Object value);
-
-    public Object get(String key);
-
-    public Set<String> keySet();
-
-}
-
-class Tags extends HashMap<String, Object> {
-
-    @Override
-    public String toString() {
-        StringJoiner sj = new StringJoiner(",\n", "\n", "\n");
-        for (String key : keySet()) {
-            String str = ("{'tag' : 'k' : " + key + " 'v' : '" + get(key).toString() + "'}");
-            sj.add(str);
-        }
-        return sj.toString();
-    }
-}
 
 
-class Edge {
-
-    Node node1;
-    Node node2;
-
-    public Edge(Node node1, Node node2) {
-        this.node1 = node1;
-        this.node2 = node2;
-    }
-
-    Node center() {
-        return new Node(node1.lon + (node2.lon - node1.lon) / 2, node1.lat + (node2.lat - node1.lat) / 2);
-    }
-}
 
 
-class Member {
-
-    String type;
-    String role;
-    long ref;
-
-    public String toString() {
-        return String.format("member %s %s %s", type, ref, role);
-    }
-
-}
 
 public class Graph implements TagsObject {
 
-    GraphRenderer renderer = new GraphRenderer(this);
+    public GraphRenderer renderer = new GraphRenderer(this);
 
     @Override
     public void put(String key, Object value) {
@@ -94,16 +44,16 @@ public class Graph implements TagsObject {
         return tags == null ? new HashSet<>() : tags.keySet();
     }
 
-    Color color = Color.ORANGE;
+    public Color color = Color.ORANGE;
 
-    protected NodeList nodeList;
-    protected WayList wayList;
-    protected RelationList relationList;
+    public  NodeList nodeList;
+    public WayList wayList;
+    public RelationList relationList;
 
-    Tags tags;
-    List<Node> nodes = new ArrayList<>();
-    List<Way> ways = new ArrayList<>();
-    List<Relation> relations = new ArrayList<>();
+    public Tags tags;
+    public List<Node> nodes = new ArrayList<>();
+    public List<Way> ways = new ArrayList<>();
+    public List<Relation> relations = new ArrayList<>();
 
     public Node nodeById(long id) {
         for (Node node : nodes) {
@@ -159,7 +109,7 @@ public class Graph implements TagsObject {
         }
     }
 
-    void clear() {
+    public void clear() {
         relations.clear();
         relationList.clear();
 
@@ -253,7 +203,7 @@ public class Graph implements TagsObject {
 //        add(center);
 //
 //    }
-    void write(OutputStream out) throws Exception {
+public void write(OutputStream out) throws Exception {
 
         try (OutputStreamWriter writer = new OutputStreamWriter(out, "utf-8");) {
 

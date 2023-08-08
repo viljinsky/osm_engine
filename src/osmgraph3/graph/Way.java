@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package osmgraph3;
+package osmgraph3.graph;
 
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
@@ -17,6 +17,9 @@ import java.util.Set;
  */
 public class Way extends ArrayList<Node> implements TagsObject {
     
+    public long id;
+    public Tags tags;
+
     CharSequence write(OutputStreamWriter writer) {
         String result = "";
         for (Node node : this) {
@@ -39,9 +42,6 @@ public class Way extends ArrayList<Node> implements TagsObject {
             return new Edge(get(index - 1), get(index));
         }
     }
-    long id;
-    Tags tags;
-
     @Override
     public void put(String key, Object value) {
         if (tags == null) {
@@ -63,7 +63,7 @@ public class Way extends ArrayList<Node> implements TagsObject {
         return tags == null ? new HashSet<>() : tags.keySet();
     }
 
-    Iterable<Edge> edges() {
+    public Iterable<Edge> edges() {
         return new Iterable<Edge>() {
             @Override
             public Iterator<Edge> iterator() {
@@ -72,11 +72,11 @@ public class Way extends ArrayList<Node> implements TagsObject {
         };
     }
 
-    Node first() {
+    public Node first() {
         return isEmpty() ? null : get(0);
     }
 
-    Node last() {
+    public Node last() {
         return isEmpty() ? null : get(size() - 1);
     }
 

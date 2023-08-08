@@ -4,6 +4,9 @@
  */
 package osmgraph3;
 
+import osmgraph3.graph.Graph;
+import osmgraph3.graph.TagsObject;
+import osmgraph3.graph.Node;
 import java.awt.BorderLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;

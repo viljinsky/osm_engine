@@ -8,7 +8,7 @@ import javax.swing.DefaultListModel;
 import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
-import osmgraph3.Node;
+import osmgraph3.graph.Node;
 
 /**
  *

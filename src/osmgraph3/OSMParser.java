@@ -1,6 +1,11 @@
 
 package osmgraph3;
 
+import osmgraph3.graph.Tags;
+import osmgraph3.graph.Way;
+import osmgraph3.graph.Relation;
+import osmgraph3.graph.Member;
+import osmgraph3.graph.Node;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;

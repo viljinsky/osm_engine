@@ -1,6 +1,10 @@
 package osmgraph3;
 
-import java.awt.Color;
+import osmgraph3.graph.Graph;
+import osmgraph3.graph.Way;
+import osmgraph3.graph.Relation;
+import osmgraph3.graph.Edge;
+import osmgraph3.graph.Node;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Point;
@@ -14,195 +18,21 @@ import osmgraph3.controls.NodeList;
 import osmgraph3.controls.RelationList;
 import osmgraph3.controls.WayList;
 
-class GraphRenderer {
 
-    Graph graph;
-
-    public GraphRenderer(Graph graph) {
-        this.graph = graph;
-    }
-
-    public void render(Browser browser, Graphics g, boolean selected) {
-
-        g.setColor(graph.color);
-
-        int xoffset = -(int) (browser.minlon * browser.zoom);
-        int yoffset = -(int) (browser.minlat * browser.zoom);
-
-        for (Node node : graph.nodes) {
-            Rectangle r = browser.nodeBound(node);
-            g.drawRect(xoffset + r.x, yoffset + r.y, r.width, r.height);
-
-        }
-
-        Rectangle r;
-
-        for (Way way : graph.ways) {
-
-            g.setColor(Color.LIGHT_GRAY);
-            r = browser.wayBound(way);
-            g.drawRect(xoffset + r.x, yoffset + r.y, r.width, r.height);
-
-            for (Edge edge : way.edges()) {
-                g.setColor(graph.color);
-                int x1 = xoffset + (int) (edge.node1.lon * browser.zoom);
-                int y1 = yoffset + (int) (edge.node1.lat * browser.zoom);
-                int x2 = xoffset + (int) (edge.node2.lon * browser.zoom);
-                int y2 = yoffset + (int) (edge.node2.lat * browser.zoom);
-                g.drawLine(x1, y1, x2, y2);
-
-                r = browser.nodeBound(edge.center());
-                g.drawLine(xoffset + r.x, yoffset + r.y, xoffset + r.x + r.width, yoffset + r.y + r.height);
-                g.drawLine(xoffset + r.x, yoffset + r.y + r.height, xoffset + r.x + r.width, yoffset + r.y);
-            }
-
-            if (way.size() > 2) {
-                g.setColor(Color.LIGHT_GRAY);
-                Node center = browser.wayCenter(way);
-                r = browser.nodeBound(center);
-                g.drawLine(xoffset + r.x - 3, yoffset + r.y - 3, xoffset + r.x + 3, yoffset + r.y + 3);
-                g.drawLine(xoffset + r.x - 3, yoffset + r.y + 3, xoffset + r.x + 3, yoffset + r.y - 3);
-            }
-
-        }
-    }
-}
-
-
-
-class BrowserMouseAdapter extends MouseAdapter {
-
-    public static final int MODE0 = 0;
-    public static final int MODE1 = 1;
-    public static final int MODE2 = 2;
-
-    Graph graph;
-    Browser browser;
-
-    int mode = MODE2;
-
-    Way way;
-    Way way1;
-    Node node1;
-    Node node2;
-
-    public void setMode(int mode) {
-        this.mode = mode;
-    }
-
-    public BrowserMouseAdapter(Browser browser, Graph graph) {
-        this.browser = browser;
-        this.graph = graph;
-    }
-
-    @Override
-    public void mouseDragged(MouseEvent e) {
-        if (node1 != null) {
-            Node node = browser.node(e.getPoint());
-            node1.lon = node.lon;
-            node1.lat = node.lat;
-            graph.change();
-        }
-    }
-
-    @Override
-    public void mouseReleased(MouseEvent e) {
-        if (node1 != null) {
-            node1 = null;
-        }
-        if (way1 != null) {
-            way1 = null;
-        }
-    }
-
-    @Override
-    public void mousePressed(MouseEvent e) {
-
-        int xoffset = -(int) (browser.minlon * browser.zoom);
-        int yoffset = -(int) (browser.minlat * browser.zoom);
-
-        Point p = new Point(xoffset + e.getX(), yoffset + e.getY());
-        Node node = browser.nodeAt(e.getPoint());
-
-        switch (mode) {
-            case MODE0:
-                for (Way w : graph.ways) {
-                    Node cenetr = browser.wayCenter(w);
-                    Rectangle r = browser.nodeBound(cenetr);
-//                    r.x+=xoffset;
-//                    r.y+=yoffset;
-                    if (r.contains(e.getPoint())) {
-                        way1 = w;
-                        System.out.println("" + way1);
-                        return;
-                    }
-                }
-                node1 = node;
-                break;
-            case MODE1:
-                if (node != null) {
-                    graph.remove(node);
-                } else {
-                    graph.add(browser.node(e.getPoint()));
-                }
-                break;
-            case MODE2:
-                if (node == null) {
-
-                    // isEdgeCenter
-                    for (Way w : graph.ways) {
-                        for (Edge edge : w.edges()) {
-                            Rectangle r = browser.nodeBound(edge.center());
-                            if (r.contains(p)) {
-                                graph.add(edge.center());
-                                w.add(w.indexOf(edge.node2), edge.center());
-                                return;
-                            }
-                        }
-                    }
-                    node = graph.add(browser.node(e.getPoint()));
-                }
-
-                if (way != null && node == way.last()) {
-                    way = null;
-                    break;
-                }
-
-                if (way != null && way.size()>1 && node == way.first()) {
-                    way.close();//add(node);
-                    way = null;
-                    graph.change();
-                    break;
-                }
-
-                if (way == null) {
-                    way = new Way();
-                    graph.add(way);
-                    graph.change();
-                }
-
-                if (node != way.last()) {
-                    way.add(node);
-                    graph.change();
-                }
-                break;
-        }
-    }
-}
 
 
 /**
  *
  * @author viljinsky
  */
-class Browser extends JComponent implements ChangeListener {
+public class Browser extends JComponent implements ChangeListener {
     
-    int mode;
-    double zoom;
-    double minlon;
-    double minlat;
-    double maxlon;
-    double maxlat;
+    public int mode;
+    public double zoom;
+    public double minlon;
+    public double minlat;
+    public double maxlon;
+    public double maxlat;
     Graph graph;
     Iterable<Graph> graphList;
     public WayList wayList = new WayList();
@@ -241,7 +71,7 @@ class Browser extends JComponent implements ChangeListener {
         return null;
     }
 
-    Node wayCenter(Way way) {
+    public Node wayCenter(Way way) {
         double min_lon = Double.MAX_VALUE;
         double min_lat = Double.MAX_VALUE;
         double max_lon = Double.MIN_VALUE;
@@ -255,13 +85,13 @@ class Browser extends JComponent implements ChangeListener {
         return new Node(min_lon + (max_lon - min_lon) / 2, min_lat + (max_lat - min_lat) / 2);
     }
 
-    Rectangle nodeBound(Node node) {
+    public Rectangle nodeBound(Node node) {
         int x = (int) ((node.lon) * zoom);
         int y = (int) ((node.lat) * zoom);
         return new Rectangle(x - 3, y - 3, 6, 6);
     }
 
-    Rectangle wayBound(Way way) {
+    public Rectangle wayBound(Way way) {
         double min_lon = Double.MAX_VALUE;
         double min_lat = Double.MAX_VALUE;
         double max_lon = Double.MIN_VALUE;
@@ -344,11 +174,11 @@ class Browser extends JComponent implements ChangeListener {
         return zoom;
     }
 
-    void zoom_in() {
+    public void zoom_in() {
         setZoom(zoom * 2.0);
     }
 
-    void zoom_out() {
+    public void zoom_out() {
         setZoom(zoom * 0.5);
     }
 
@@ -357,7 +187,7 @@ class Browser extends JComponent implements ChangeListener {
         repaint();
     }
 
-    void setMode(int mode) {
+    public void setMode(int mode) {
         this.mode = mode;
         if (mouseAdapter != null) {
             mouseAdapter.mode = mode;
