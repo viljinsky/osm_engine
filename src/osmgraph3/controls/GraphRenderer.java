@@ -29,13 +29,9 @@ public class GraphRenderer {
 
         g.setColor(graph.color);
 
-        int xoffset = -(int) (browser.minlon * browser.zoom);
-        int yoffset = -(int) (browser.minlat * browser.zoom);
-
         for (Node node : graph.nodes) {
             Rectangle r = browser.nodeBound(node);
-            g.drawRect(xoffset + r.x, yoffset + r.y, r.width, r.height);
-
+            g.drawRect(r.x,r.y, r.width, r.height);
         }
 
         Rectangle r;
@@ -44,28 +40,27 @@ public class GraphRenderer {
 
             g.setColor(Color.LIGHT_GRAY);
             r = browser.wayBound(way);
-//            if (r.width<5 && r.height<5) continue;
-            g.drawRect(xoffset + r.x, yoffset + r.y, r.width, r.height);
+            g.drawRect(r.x, r.y, r.width, r.height);
 
             for (Edge edge : way.edges()) {
                 g.setColor(graph.color);
-                int x1 = xoffset + (int) (edge.node1.lon * browser.zoom);
-                int y1 = yoffset + (int) (edge.node1.lat * browser.zoom);
-                int x2 = xoffset + (int) (edge.node2.lon * browser.zoom);
-                int y2 = yoffset + (int) (edge.node2.lat * browser.zoom);
+                int x1 = browser.lonToX(edge.node1.lon) ;
+                int y1 = browser.latToY(edge.node1.lat);
+                int x2 = browser.lonToX(edge.node2.lon);
+                int y2 = browser.latToY(edge.node2.lat);
                 g.drawLine(x1, y1, x2, y2);
 
                 r = browser.nodeBound(edge.center());
-                g.drawLine(xoffset + r.x, yoffset + r.y, xoffset + r.x + r.width, yoffset + r.y + r.height);
-                g.drawLine(xoffset + r.x, yoffset + r.y + r.height, xoffset + r.x + r.width, yoffset + r.y);
+                g.drawLine(r.x, r.y, r.x + r.width, r.y + r.height);
+                g.drawLine(r.x, r.y + r.height, r.x + r.width, r.y);
             }
 
             if (way.size() > 2) {
                 g.setColor(Color.LIGHT_GRAY);
-                Node center = way.center();//browser.wayCenter(way);
+                Node center = way.center();
                 r = browser.nodeBound(center);
-                g.drawLine(xoffset + r.x - 3, yoffset + r.y - 3, xoffset + r.x + 3, yoffset + r.y + 3);
-                g.drawLine(xoffset + r.x - 3, yoffset + r.y + 3, xoffset + r.x + 3, yoffset + r.y - 3);
+                g.drawLine(r.x - 3, r.y - 3, r.x + 3, r.y + 3);
+                g.drawLine(r.x - 3, r.y + 3, r.x + 3, r.y - 3);
             }
 
         }

@@ -2,85 +2,19 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package osmgraph3;
+package osmgraph3.controls;
 
-import osmgraph3.graph.Graph;
-import osmgraph3.graph.TagsObject;
-import osmgraph3.graph.Node;
 import java.awt.BorderLayout;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.util.EventObject;
-import java.util.Iterator;
 import javax.swing.BoxLayout;
-import javax.swing.DefaultListModel;
 import javax.swing.JComponent;
-import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableModel;
 import osmgraph3.controls.CommandManager;
+import osmgraph3.graph.GraphElement;
 
-class GraphListener extends MouseAdapter {
-
-    Browser browser;
-
-    public GraphListener(Browser browser) {
-        this.browser = browser;
-    }
-
-    @Override
-    public void mousePressed(MouseEvent e) {
-        Node node = browser.nodeAt(e.getPoint());
-        if (node != null) {
-            browser.onClickNode(node);
-        }
-    }
-
-}
-
-interface GraphElement {
-}
-
-class GraphEvent extends EventObject {
-
-    public static final int CHANGE = 0;
-    public static final int ADD = 1;
-    public static final int REMOVE = 2;
-
-    GraphElement element;
-    int eventType;
-
-    public GraphEvent(Object source) {
-        super(source);
-    }
-
-    public GraphEvent(Object source, GraphElement element, int eventType) {
-        super(source);
-        this.eventType = eventType;
-        this.element = element;
-    }
-
-}
-
-interface GrpahChangeListener extends ChangeListener {
-
-    public void add(GraphEvent e);
-
-    public void remove(GraphEvent e);
-}
-
-
-
-
-
-
-
-
-
-class TagEditor extends JComponent implements CommandManager.CommandListener {
+public class TagList extends JComponent implements CommandManager.CommandListener {
 
     public static final String ADD = "add";
     public static final String DELETE = "delete";
@@ -110,18 +44,18 @@ class TagEditor extends JComponent implements CommandManager.CommandListener {
 
     CommandManager commandManager = new CommandManager(this, ADD, DELETE, POST);
 
-    TagsObject tags;
+    GraphElement tags;
 
     DefaultTableModel model = new DefaultTableModel(0, 2);
 
     JTable table = new JTable(model);
 
-    public TagEditor() {
+    public TagList() {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         add(new JScrollPane(table));
     }
 
-    public void setTags(TagsObject tags) {
+    public void setTags(GraphElement tags) {
         this.tags = tags;
 
         while (model.getRowCount() > 0) {

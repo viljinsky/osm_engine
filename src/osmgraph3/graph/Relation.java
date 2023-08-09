@@ -1,14 +1,14 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package osmgraph3.graph;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
-public class Relation extends ArrayList<Member> implements TagsObject {
+/**
+ *
+ * @author viljinsky
+ */
+public class Relation extends ArrayList<Member> implements GraphElement {
 
     public Tags tags;
     public long id;

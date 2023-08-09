@@ -16,12 +16,11 @@ import osmgraph3.controls.NodeList;
 import osmgraph3.controls.RelationList;
 import osmgraph3.controls.WayList;
 
-
-
-
-
-
-public class Graph implements TagsObject {
+/**
+ *
+ * @author viljinsky
+ */
+public class Graph implements GraphElement {
 
     private GraphRenderer renderer = new GraphRenderer(this);
     

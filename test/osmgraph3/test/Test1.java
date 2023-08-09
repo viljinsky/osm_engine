@@ -2,10 +2,6 @@ package osmgraph3.test;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Cursor;
-import java.awt.Rectangle;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.ArrayList;
 import javax.swing.JComponent;
@@ -18,7 +14,42 @@ import osmgraph3.controls.CommandManager;
 import osmgraph3.controls.CommandManager.CommandListener;
 import osmgraph3.controls.StatusBar;
 import osmgraph3.graph.Graph;
-import osmgraph3.graph.Node;
+import osmgraph3.graph.Way;
+
+class Graph3 extends Graph {
+
+    public Graph3() {
+        super(Color.RED);
+        add(1.0, 1.0);
+        add(2.0, 2.0);
+        add(3.0, 3.0);
+        add(4.0, 4.0);
+        add(5.0, 5.0);
+        add(6.0, 6.0);
+        //
+        Way way = new Way();
+        way.add(1.0, 4.5);
+        way.add(2.0, 5.5);
+        way.add(3.1, 4.1);
+        way.add(4.0, 5.5);
+        way.add(4.0, 5.5);
+        way.add(4.4, 5.5);
+        way.add(4.8, 5.5);
+        add(way);
+
+    }
+
+}
+
+class Graph4 extends Graph {
+
+    public Graph4() {
+        OSMParser parser = new OSMParser(new File("C:\\Users\\viljinsky\\Desktop", "test.osm"));
+        nodes = parser.nodes;
+        ways = parser.ways;
+        relations = parser.relations;
+    }
+}
 
 class GraphMamager implements CommandListener {
 
@@ -34,7 +65,7 @@ class GraphMamager implements CommandListener {
     public static final String ZOOM_OUT = "-";
     public static final String RESET = "Rst";
 
-    CommandManager commandManager = new CommandManager(this, CREATE, READ, WRITE, DELETE, null, NORTH, SOUTH, WEST, EAST,null,ZOOM_IN,ZOOM_OUT,null,RESET);
+    CommandManager commandManager = new CommandManager(this, CREATE, READ, WRITE, DELETE, null, NORTH, SOUTH, WEST, EAST, null, ZOOM_IN, ZOOM_OUT, null, RESET);
 
     Browser browser;
     ArrayList<Graph> list;
@@ -42,50 +73,25 @@ class GraphMamager implements CommandListener {
     @Override
     public void doCommand(String command) {
         Graph graph;
-        double dlon=.0,dlat=.0;
+        double dlon = .0, dlat = .0;
         try {
             switch (command) {
                 case CREATE:
-                    graph = new Graph(Color.BLACK);
-                    //        graph.add(1.0, 1.0);
-                    //        graph.add(2.0, 2.0);
-                    //        graph.add(3.0, 3.0);
-                    //        graph.add(4.0, 4.0);
-                    //        graph.add(5.0, 5.0);
-                    //        graph.add(6.0, 6.0);
-                    //
-                    //        Way way = new Way();
-                    graph.add(1.0, 4.5);
-                    graph.add(2.0, 5.5);
-                    graph.add(3.1, 4.1);
-                    graph.add(4.0, 5.5);
-                    graph.add(4.0, 5.5);
-                    graph.add(4.4, 5.5);
-                    graph.add(4.8, 5.5);
-                    //        graph.add(way);
-
-                    browser.setBound(1.0, 1.0, 6.0, 6.0);
-                    browser.zoom = browser.getPreferredSize().width / 5.0;
+                    graph = new Graph3();
                     list.clear();
                     list.add(graph);
                     browser.setGraph(graph);
+                    browser.reset();
 
                     break;
                 case READ:
-                    OSMParser parser = new OSMParser(new File("C:\\Users\\viljinsky\\Desktop", "test.osm"));
-                    graph = new Graph();
-                    graph.nodes = parser.nodes;
-                    graph.ways = parser.ways;
-                    graph.relations = parser.relations;
-                    browser.setBound(parser.bound());
-                    browser.zoom = browser.getWidth() / (parser.maxlon - parser.minlon);
-                    //                    browser.zoom = browser.getHeight()/(parser.maxlat - parser.minlat);
+                    graph = new Graph4();
                     list.clear();
                     list.add(graph);
                     browser.setGraph(graph);
                     browser.reset();
                     break;
-                    
+
                 case ZOOM_IN:
                     browser.zoom_in();
                     break;
@@ -99,7 +105,7 @@ class GraphMamager implements CommandListener {
                     browser.move_south();
                     break;
                 case EAST:
-                    browser.move_eact();
+                    browser.move_east();
                     break;
                 case WEST:
                     browser.move_west();
@@ -131,72 +137,6 @@ class GraphMamager implements CommandListener {
 
 }
 
-class DefaultMouseAdapter extends MouseAdapter {
-
-    Browser browser;
-
-    public DefaultMouseAdapter(Browser browser) {
-        this.browser = browser;
-        browser.addMouseListener(this);
-        browser.addMouseMotionListener(this);
-    }
-
-    @Override
-    public void mouseMoved(MouseEvent e) {
-        Graph graph = browser.graph;
-        if (graph == null) {
-            return;
-        }
-        for (Node node : graph.nodes) {
-            Rectangle r = browser.nodeBound(node);
-            if (r.contains(e.getPoint())) {
-                browser.setCursor(new Cursor(Cursor.HAND_CURSOR));
-                return;
-            }
-        }
-        browser.setCursor(new Cursor(Cursor.DEFAULT_CURSOR) {
-        });
-
-    }
-
-    @Override
-    public void mousePressed(MouseEvent e) {
-        Node center;
-        Rectangle r;
-        Graph graph = browser.graph;
-        if (graph == null) {
-            return;
-        }
-
-        int xoffset = (int) (browser.minlon * browser.zoom);
-        int yoffset = (int) (browser.minlat * browser.zoom);
-
-        Node n = new Node((e.getX() + xoffset) / browser.zoom, (e.getY() + yoffset) / browser.zoom);
-        graph.add(n);
-
-//        for (Way way : graph.ways) {
-//            center = way.center();
-//            center.lon -=browser.minlon;
-//            center.lat -=browser.minlat;
-//            r = browser.nodeBound(center);
-//            if (r.contains(e.getPoint())){
-//                System.err.println(way);
-//            }
-//            for (Edge edge : way.edges()) {
-//                center = edge.center();
-//                center.lat -= browser.maxlat;
-//                center.lon -= browser.minlon;
-//
-//                r = browser.nodeBound(center);
-//                if (r.contains(e.getPoint())) {
-//                    System.out.println(edge);
-//                }
-//            }
-//        }
-    }
-
-}
-
 /**
  *
  * @author viljinsky
@@ -211,36 +151,11 @@ public class Test1 extends JPanel {
 
     GraphMamager graphMamager = new GraphMamager(browser, list);
 
-    DefaultMouseAdapter mouseAdapter = new DefaultMouseAdapter(browser);
-
     public Test1() {
         super(new BorderLayout());
         add(browser);
         add(graphMamager.commandBar(), BorderLayout.PAGE_START);
         add(statusBar, BorderLayout.PAGE_END);
-
-//        Graph graph = new Graph(Color.BLACK);
-////        graph.add(1.0, 1.0);
-////        graph.add(2.0, 2.0);
-////        graph.add(3.0, 3.0);
-////        graph.add(4.0, 4.0);
-////        graph.add(5.0, 5.0);
-////        graph.add(6.0, 6.0);
-////
-////        Way way = new Way();
-//        graph.add(1.0, 4.5);
-//        graph.add(2.0, 5.5);
-//        graph.add(3.1, 4.1);
-//        graph.add(4.0, 5.5);
-//        graph.add(4.0, 5.5);
-//        graph.add(4.4, 5.5);
-//        graph.add(4.8, 5.5);
-////        graph.add(way);
-//
-//        browser.setBound(1.0, 1.0, 6.0, 6.0);
-//        browser.zoom = browser.getPreferredSize().width / 5.0;
-//        list.add(graph);
-//        browser.setGraph(graph);
     }
 
     public static void main(String[] args) {

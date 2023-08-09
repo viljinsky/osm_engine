@@ -1,10 +1,5 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package osmgraph3.graph;
 
-import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -15,19 +10,11 @@ import java.util.Set;
  *
  * @author viljinsky
  */
-public class Way extends ArrayList<Node> implements TagsObject {
+public class Way extends ArrayList<Node> implements GraphElement {
     
     public long id;
     
     public Tags tags;
-
-    CharSequence write(OutputStreamWriter writer) {
-        String result = "";
-        for (Node node : this) {
-            result += "'ref' : " + node.id + "\n";
-        }
-        return result;
-    }
 
     public Node center() {
         double minlon = Double.MAX_VALUE;
@@ -79,12 +66,7 @@ public class Way extends ArrayList<Node> implements TagsObject {
     }
 
     public Iterable<Edge> edges() {
-        return new Iterable<Edge>() {
-            @Override
-            public Iterator<Edge> iterator() {
-                return new EdgeIterator();
-            }
-        };
+        return () -> new EdgeIterator();
     }
 
     public void add(double  lon,double  lat){

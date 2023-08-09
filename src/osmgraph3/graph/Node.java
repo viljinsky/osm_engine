@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package osmgraph3.graph;
 
 import java.util.HashSet;
@@ -12,7 +8,7 @@ import java.util.Set;
  *
  * @author viljinsky
  */
-public class Node implements TagsObject {
+public class Node implements GraphElement {
     
     public long id;
     public double lon;

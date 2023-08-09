@@ -12,7 +12,6 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
-import osmgraph3.CommandBar;
 
 /**
  *

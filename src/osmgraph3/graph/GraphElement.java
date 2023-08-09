@@ -6,7 +6,7 @@ import java.util.Set;
  *
  * @author viljinsky
  */
-public interface TagsObject {
+public interface GraphElement {
 
     public void put(String key, Object value);
 

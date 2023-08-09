@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package osmgraph3.graph;
 
 /**
@@ -20,6 +16,10 @@ public class Edge {
 
     public Node center() {
         return new Node(node1.lon + (node2.lon - node1.lon) / 2, node1.lat + (node2.lat - node1.lat) / 2);
+    }
+    
+    public String toString(){
+        return String.format("edge  : %d %d", node1.id,node2.id);
     }
     
 }

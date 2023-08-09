@@ -20,6 +20,10 @@ public class StatusBar extends Container {
         setLayout(new FlowLayout(FlowLayout.LEFT));
         add(label);
     }
+    
+    public void setStatusText(String text){
+        label.setText(text);
+    }
 
 }
 
