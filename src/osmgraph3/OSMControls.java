@@ -21,6 +21,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableModel;
+import osmgraph3.controls.CommandManager;
 
 class GraphListener extends MouseAdapter {
 
@@ -77,46 +78,6 @@ interface GrpahChangeListener extends ChangeListener {
 
 
 
-class GraphList extends JList<Graph> implements Iterable<Graph> {
-
-    DefaultListModel<Graph> model = new DefaultListModel<>();
-
-    JComponent view() {
-        return new JScrollPane(this);
-    }
-
-    public GraphList() {
-        setModel(model);
-    }
-
-    public void add(Graph graph) {
-        model.addElement(graph);
-        setSelectedIndex(model.indexOf(graph));
-    }
-
-    public void remove(Graph graph) {
-        model.removeElement(graph);
-    }
-
-    @Override
-    public Iterator<Graph> iterator() {
-
-        return new Iterator<Graph>() {
-            int index = -1;
-
-            @Override
-            public boolean hasNext() {
-                return ++index < model.size();
-            }
-
-            @Override
-            public Graph next() {
-                return model.getElementAt(index);
-            }
-        };
-    }
-
-}
 
 
 class TagEditor extends JComponent implements CommandManager.CommandListener {

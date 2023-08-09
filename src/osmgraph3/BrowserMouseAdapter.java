@@ -74,7 +74,7 @@ public class BrowserMouseAdapter extends MouseAdapter {
         switch (mode) {
             case MODE0:
                 for (Way w : graph.ways) {
-                    Node cenetr = browser.wayCenter(w);
+                    Node cenetr = way.center();
                     Rectangle r = browser.nodeBound(cenetr);
 //                    r.x+=xoffset;
 //                    r.y+=yoffset;

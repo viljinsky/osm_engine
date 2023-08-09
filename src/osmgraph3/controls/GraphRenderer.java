@@ -44,6 +44,7 @@ public class GraphRenderer {
 
             g.setColor(Color.LIGHT_GRAY);
             r = browser.wayBound(way);
+//            if (r.width<5 && r.height<5) continue;
             g.drawRect(xoffset + r.x, yoffset + r.y, r.width, r.height);
 
             for (Edge edge : way.edges()) {
@@ -61,7 +62,7 @@ public class GraphRenderer {
 
             if (way.size() > 2) {
                 g.setColor(Color.LIGHT_GRAY);
-                Node center = browser.wayCenter(way);
+                Node center = way.center();//browser.wayCenter(way);
                 r = browser.nodeBound(center);
                 g.drawLine(xoffset + r.x - 3, yoffset + r.y - 3, xoffset + r.x + 3, yoffset + r.y + 3);
                 g.drawLine(xoffset + r.x - 3, yoffset + r.y + 3, xoffset + r.x + 3, yoffset + r.y - 3);

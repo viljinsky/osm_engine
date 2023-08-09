@@ -3,22 +3,17 @@ package osmgraph3;
 import osmgraph3.graph.Graph;
 import osmgraph3.graph.Way;
 import osmgraph3.graph.Relation;
-import osmgraph3.graph.Edge;
 import osmgraph3.graph.Node;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import javax.swing.JComponent;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import osmgraph3.controls.NodeList;
 import osmgraph3.controls.RelationList;
 import osmgraph3.controls.WayList;
-
-
 
 
 /**
@@ -33,12 +28,12 @@ public class Browser extends JComponent implements ChangeListener {
     public double minlat;
     public double maxlon;
     public double maxlat;
-    Graph graph;
+    public Graph graph;
     Iterable<Graph> graphList;
     public WayList wayList = new WayList();
     public NodeList nodeList = new NodeList();
     public RelationList relationList = new RelationList();
-    BrowserMouseAdapter mouseAdapter;
+//    BrowserMouseAdapter mouseAdapter;
 
     @Override
     public void stateChanged(ChangeEvent e) {
@@ -71,20 +66,6 @@ public class Browser extends JComponent implements ChangeListener {
         return null;
     }
 
-    public Node wayCenter(Way way) {
-        double min_lon = Double.MAX_VALUE;
-        double min_lat = Double.MAX_VALUE;
-        double max_lon = Double.MIN_VALUE;
-        double max_lat = Double.MIN_VALUE;
-        for (Node node : way) {
-            min_lon = Math.min(min_lon, node.lon);
-            min_lat = Math.min(min_lat, node.lat);
-            max_lon = Math.max(max_lon, node.lon);
-            max_lat = Math.max(max_lat, node.lat);
-        }
-        return new Node(min_lon + (max_lon - min_lon) / 2, min_lat + (max_lat - min_lat) / 2);
-    }
-
     public Rectangle nodeBound(Node node) {
         int x = (int) ((node.lon) * zoom);
         int y = (int) ((node.lat) * zoom);
@@ -112,35 +93,39 @@ public class Browser extends JComponent implements ChangeListener {
     public void setGraph(Graph graph) {
         //        zoom = 100.0;
         if (graph != null) {
+            
             nodeList.clear();
             for (Node node : graph.nodes) {
                 nodeList.add(node);
             }
             graph.nodeList = nodeList;
+            
             wayList.clear();
             for (Way way : graph.ways) {
                 wayList.add(way);
             }
             graph.wayList = wayList;
+            
             relationList.clear();
             for (Relation r : graph.relations) {
                 relationList.add(r);
-            }
+            }            
             graph.relationList = relationList;
+            
             graph.addChangeListener(this);
-            if (mouseAdapter != null) {
-                removeMouseListener(mouseAdapter);
-                removeMouseMotionListener(mouseAdapter);
-            }
-            mouseAdapter = new BrowserMouseAdapter(this, graph);
+//            if (mouseAdapter != null) {
+//                removeMouseListener(mouseAdapter);
+//                removeMouseMotionListener(mouseAdapter);
+//            }
+//            mouseAdapter = new BrowserMouseAdapter(this, graph);
             setMode(BrowserMouseAdapter.MODE0);
-            addMouseListener(mouseAdapter);
-            addMouseMotionListener(mouseAdapter);
+//            addMouseListener(mouseAdapter);
+//            addMouseMotionListener(mouseAdapter);
         } else {
             if (this.graph != null) {
-                removeMouseListener(mouseAdapter);
-                removeMouseMotionListener(mouseAdapter);
-                mouseAdapter = null;
+//                removeMouseListener(mouseAdapter);
+//                removeMouseMotionListener(mouseAdapter);
+//                mouseAdapter = null;
             }
             nodeList.clear();
             wayList.clear();
@@ -150,23 +135,26 @@ public class Browser extends JComponent implements ChangeListener {
         repaint();
     }
 
-    public Browser() {
-        setPreferredSize(new Dimension(400, 400));
-        addMouseListener(mouseAdapter);
+    public void setBound(double[] bound){
+        setBound(bound[0], bound[1], bound[2], bound[3]);
     }
-
-    public Browser(Iterable<Graph> graphList) {
-        this();
-        this.graphList = graphList;
+    
+    public void setBound(double minlon, double minlat, double maxlon, double maxlat){
+        this.minlon = minlon;
+        this.minlat = minlat;
+        this.maxlon = maxlon;
+        this.maxlat = maxlat;
     }
+    
+    
 
     @Override
     public void paint(Graphics g) {
-        if (graphList != null) {
-            for (Graph gr : graphList) {
-                gr.renderer.render(this, g, true);
-                //                gr.paint(g, gr == graph);
-            }
+        if (graphList == null){
+            throw new RuntimeException("Browser : graphlist is null");
+        }
+        for (Graph gr : graphList) {
+            gr.draw(this, g);
         }
     }
 
@@ -175,10 +163,18 @@ public class Browser extends JComponent implements ChangeListener {
     }
 
     public void zoom_in() {
+//        minlon += (maxlon-minlon)/2.0;
+//        minlat += (maxlat-minlat)/2.0;
+//        maxlon -= (maxlon-minlon)/2.0;
+//        minlat -= (maxlat-minlat)/2.0;
         setZoom(zoom * 2.0);
     }
 
     public void zoom_out() {
+//        minlon -= (maxlon-minlon)/2.0;
+//        minlat -= (maxlat-minlat)/2.0;
+//        maxlon += (maxlon-minlon)/2.0;
+//        minlat += (maxlat-minlat)/2.0;
         setZoom(zoom * 0.5);
     }
 
@@ -186,16 +182,61 @@ public class Browser extends JComponent implements ChangeListener {
         this.zoom = zoom;
         repaint();
     }
+    
+    private void move(double dlon,double dlat){
+       maxlon += dlon;
+       minlon += dlon;
+       minlat +=dlat;
+       maxlat += dlat;
+       repaint();
+        
+    }
+    public void move_south(){
+        move(.0,(maxlat-minlat)*.25);
+    }
+    public void move_noth(){
+        move(.0,(minlat-maxlat)*.25);
+    }
+    public void move_west(){
+        move((maxlon-minlon)*.25,.0);
+    }
+    public void move_eact(){
+        move((minlon-maxlon)*.25,.0);
+    }
 
     public void setMode(int mode) {
         this.mode = mode;
-        if (mouseAdapter != null) {
-            mouseAdapter.mode = mode;
-        }
+//        if (mouseAdapter != null) {
+//            mouseAdapter.mode = mode;
+//        }
     }
 
     void onClickNode(Node node) {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
+
+    public Browser(Iterable<Graph> graphList) {
+        setPreferredSize(new Dimension(400, 400));
+//        addMouseListener(mouseAdapter);
+        this.graphList = graphList;
+    }
+
+    public void reset() {
+        int w = getWidth();
+        int h = getHeight();
+        minlon = Double.MAX_VALUE;
+        minlat = Double.MAX_VALUE;
+        maxlon = Double.MIN_VALUE;
+        maxlat = Double.MIN_VALUE;
+        for(Node node:graph.nodes){
+            minlon = Math.min(minlon,node.lon);
+            minlat = Math.min(minlat,node.lat);
+            maxlon = Math.max(maxlon,node.lon);
+            maxlat = Math.max(maxlat,node.lat);
+        }
+        zoom = Math.max(w / (maxlon - minlon),h /maxlat- minlat);
+        repaint();
+    }
+
     
 }

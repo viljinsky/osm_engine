@@ -1,6 +1,7 @@
 package osmgraph3.graph;
 
 import java.awt.Color;
+import java.awt.Graphics;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
@@ -9,6 +10,7 @@ import java.util.List;
 import java.util.Set;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import osmgraph3.Browser;
 import osmgraph3.controls.GraphRenderer;
 import osmgraph3.controls.NodeList;
 import osmgraph3.controls.RelationList;
@@ -21,7 +23,11 @@ import osmgraph3.controls.WayList;
 
 public class Graph implements TagsObject {
 
-    public GraphRenderer renderer = new GraphRenderer(this);
+    private GraphRenderer renderer = new GraphRenderer(this);
+    
+    public void draw(Browser browser,Graphics g){
+        renderer.render(browser, g, true);
+    }
 
     @Override
     public void put(String key, Object value) {
@@ -132,8 +138,8 @@ public class Graph implements TagsObject {
         for (Node node : way) {
             if (!nodes.contains(node)) {
                 node.id = ++last_node;
+                nodes.add(node);
             }
-            nodes.add(node);
         }
         ways.add(way);
         if (wayList != null) {
@@ -146,6 +152,10 @@ public class Graph implements TagsObject {
     //------------------------- n o d e s   ------------------------------------
     int last_node = -1;
 
+    public Node add(double lon,double lat){
+        return add(new Node(lon,lat));
+    }
+    
     public Node add(Node node) {
         node.id = ++last_node;
         node.put("key", "value");
@@ -157,52 +167,6 @@ public class Graph implements TagsObject {
         return node;
     }
 
-//    public Node add(Point p) {
-//        return add(node(p));
-//    }
-//    Node nodeAt(Point point) {
-//        for (Node node : nodes) {
-//            Rectangle r = nodeBound(node);
-//            if (r.contains(point)) {
-//                return node;
-//            }
-//        }
-//        return null;
-//    }
-//    void read(InputStream in) {
-//
-//        /*
-//        {'raph':{
-//        tag :{'k':'color','v',#FF4466},
-//            'node':[
-//                {'lon':1.22,'lat'},
-//                {},
-//            ],
-//            'way':[],
-//        }}
-//         */
-//        color = Color.BLUE;
-//
-//        add(new Node(1, 1));
-//        add(new Node(2, 1));
-//        add(new Node(2, 2));
-//        add(new Node(1, 2));
-//        add(new Node(1, 1));
-//
-//        Way way = new Way();
-//        way.add(new Node(3, 1));
-//        way.add(new Node(4, 1));
-//        way.add(new Node(4, 2));
-//        way.add(new Node(3, 2));
-//        way.add(new Node(3, 1));
-//        way.put("color", Color.PINK);
-//        way.put("type", "border");
-//        add(way);
-//        Node center = wayCenter(way);
-//        center.put("type", "center");
-//        add(center);
-//
-//    }
 public void write(OutputStream out) throws Exception {
 
         try (OutputStreamWriter writer = new OutputStreamWriter(out, "utf-8");) {

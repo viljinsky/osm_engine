@@ -20,8 +20,12 @@ import javax.swing.JOptionPane;
 import javax.swing.JSplitPane;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import osmgraph3.controls.CommandManager;
+import osmgraph3.controls.GraphList;
 import osmgraph3.controls.NodeList;
 import osmgraph3.controls.RelationList;
+import osmgraph3.controls.SideBar;
+import osmgraph3.controls.StatusBar;
 import osmgraph3.controls.WayList;
 
 
@@ -71,27 +75,23 @@ class App extends Container implements CommandManager.CommandListener {
                     break;
                 case ADD:
                     graph = new Graph(Color.BLUE);
-                    browser.minlon = 2.0;
-                    browser.minlat = 2.0;
-                    browser.maxlon = 5.0;
-                    browser.maxlat = 5.0;
-                    //                    browser.zoom = browser.getWidth()/(browser.maxlon - browser.minlon);
+                    browser.setBound( 2.0, 2.0, 5.0, 5.0);
                     browser.zoom = browser.getHeight() / (browser.maxlat - browser.minlat);
-                    graph.add(new Node(3.0, 3.0));
-                    graph.add(new Node(4.0, 3.0));
-                    graph.add(new Node(4.0, 4.0));
-                    graph.add(new Node(3.0, 4.0));
+                    graph.add(3.0, 3.0);
+                    graph.add(4.0, 3.0);
+                    graph.add(4.0, 4.0);
+                    graph.add(3.0, 4.0);
                     Way way = new Way();
-                    way.add(new Node(5.0, 3.0));
-                    way.add(new Node(6.0, 3.0));
-                    way.add(new Node(6.0, 4.0));
-                    way.add(new Node(5.0, 4.0));
+                    way.add(5.0, 3.0);
+                    way.add(6.0, 3.0);
+                    way.add(6.0, 4.0);
+                    way.add(5.0, 4.0);
 //                    way.add(new Node(5.0, 3.0));
                     way.close();
                     graph.add(way);
                     way = new Way();
-                    way.add(new Node(5.0, 4.5));
-                    way.add(new Node(6.0, 4.5));
+                    way.add(5.0, 4.5);
+                    way.add(6.0, 4.5);
                     graph.add(way);
                     graphList.add(graph);
                     break;
@@ -106,10 +106,7 @@ class App extends Container implements CommandManager.CommandListener {
                     graph.nodes = parser.nodes;
                     graph.ways = parser.ways;
                     graph.relations = parser.relations;
-                    browser.maxlon = parser.maxlon;
-                    browser.maxlat = parser.maxlat;
-                    browser.minlon = parser.minlon;
-                    browser.minlat = parser.minlat;
+                    browser.setBound(parser.bound());
                     browser.zoom = browser.getWidth() / (parser.maxlon - parser.minlon);
                     //                    browser.zoom = browser.getHeight()/(parser.maxlat - parser.minlat);
                     graphList.add(graph);
@@ -159,7 +156,7 @@ class App extends Container implements CommandManager.CommandListener {
     TagEditor tagEditor = new TagEditor();
     SideBar sideBar = new SideBar(graphList.view(), wayList.view(), nodeList.view(), relationList.view(), tagEditor.view());
     JComponent commandBar = commandManager.commandBar();
-    StatausBar statausBar = new StatausBar();
+    StatusBar statausBar = new StatusBar();
     ListSelectionListener tagsListener = new ListSelectionListener() {
         @Override
         public void valueChanged(ListSelectionEvent e) {

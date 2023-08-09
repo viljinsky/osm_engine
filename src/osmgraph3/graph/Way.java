@@ -18,6 +18,7 @@ import java.util.Set;
 public class Way extends ArrayList<Node> implements TagsObject {
     
     public long id;
+    
     public Tags tags;
 
     CharSequence write(OutputStreamWriter writer) {
@@ -26,6 +27,20 @@ public class Way extends ArrayList<Node> implements TagsObject {
             result += "'ref' : " + node.id + "\n";
         }
         return result;
+    }
+
+    public Node center() {
+        double minlon = Double.MAX_VALUE;
+        double minlat = Double.MAX_VALUE;
+        double maxlon = Double.MIN_VALUE;
+        double maxlat = Double.MIN_VALUE;
+        for(Node node: this){
+            minlon = Math.min(minlon, node.lon);
+            minlat = Math.min(minlat, node.lat);
+            maxlon = Math.max(maxlon, node.lon);
+            maxlat = Math.max(maxlat, node.lat);
+        }
+        return new Node(minlon + (maxlon-minlon)/2, minlat+(maxlat-minlat)/2);
     }
 
     class EdgeIterator implements Iterator<Edge> {
@@ -72,6 +87,10 @@ public class Way extends ArrayList<Node> implements TagsObject {
         };
     }
 
+    public void add(double  lon,double  lat){
+        super.add(new Node(lon,lat));
+    }
+    
     public Node first() {
         return isEmpty() ? null : get(0);
     }

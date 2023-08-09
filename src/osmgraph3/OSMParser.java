@@ -21,16 +21,20 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-class OSMParser extends DefaultHandler {
+public class OSMParser extends DefaultHandler {
 
-    List<Relation> relations = new ArrayList<>();
-    List<Node> nodes = new ArrayList<>();
-    List<Way> ways = new ArrayList<>();
+    public List<Relation> relations = new ArrayList<>();
+    public List<Node> nodes = new ArrayList<>();
+    public List<Way> ways = new ArrayList<>();
 
     Node node;
     Way way;
     Relation relation;
-    double minlon, minlat, maxlon, maxlat;
+    public double minlon, minlat, maxlon, maxlat;
+    
+    public double[] bound(){
+        return new double[]{minlon,minlat,maxlon,maxlat};
+    }
 
     Node nodeById(long id) {
         for (Node node : nodes) {
