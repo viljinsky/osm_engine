@@ -1,6 +1,7 @@
 package osmgraph3.graph;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
@@ -17,14 +18,10 @@ public class Way extends ArrayList<Node> implements GraphElement {
     public Tags tags;
 
     public Way(Node... nodes) {
-        for(Node n:nodes){
-            add(n);
-        }
+        addAll(Arrays.asList(nodes));
     }
     
-    
-
-    public Node center() {
+    public Bound bound(){
         double minlon = Double.MAX_VALUE;
         double minlat = Double.MAX_VALUE;
         double maxlon = Double.MIN_VALUE;
@@ -35,7 +32,11 @@ public class Way extends ArrayList<Node> implements GraphElement {
             maxlon = Math.max(maxlon, node.lon);
             maxlat = Math.max(maxlat, node.lat);
         }
-        return new Node(minlon + (maxlon-minlon)/2, minlat+(maxlat-minlat)/2);
+        return new Bound(minlon, minlat, maxlon, maxlat);
+    }
+
+    public Node center() {
+        return bound().center();
     }
 
     class EdgeIterator implements Iterator<Edge> {

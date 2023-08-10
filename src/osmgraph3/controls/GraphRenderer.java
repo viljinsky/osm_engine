@@ -30,7 +30,7 @@ public class GraphRenderer {
         g.setColor(graph.color);
 
         for (Node node : graph.nodes) {
-            Rectangle r = browser.nodeBound(node);
+            Rectangle r = browser.nodeRectangle(node);
             g.drawRect(r.x,r.y, r.width, r.height);
         }
 
@@ -39,7 +39,7 @@ public class GraphRenderer {
         for (Way way : graph.ways) {
 
             g.setColor(Color.LIGHT_GRAY);
-            r = browser.wayBound(way);
+            r = browser.wayRectangle(way);
             g.drawRect(r.x, r.y, r.width, r.height);
 
             for (Edge edge : way.edges()) {
@@ -50,7 +50,7 @@ public class GraphRenderer {
                 int y2 = browser.latToY(edge.node2.lat);
                 g.drawLine(x1, y1, x2, y2);
 
-                r = browser.nodeBound(edge.center());
+                r = browser.nodeRectangle(edge.center());
                 g.drawLine(r.x, r.y, r.x + r.width, r.y + r.height);
                 g.drawLine(r.x, r.y + r.height, r.x + r.width, r.y);
             }
@@ -58,18 +58,13 @@ public class GraphRenderer {
             if (way.size() > 2) {
                 g.setColor(Color.LIGHT_GRAY);
                 Node center = way.center();
-                r = browser.nodeBound(center);
+                r = browser.nodeRectangle(center);
                 g.drawLine(r.x - 3, r.y - 3, r.x + 3, r.y + 3);
                 g.drawLine(r.x - 3, r.y + 3, r.x + 3, r.y - 3);
             }
 
         }
         
-        // drow center
-        int w = browser.getWidth()/2;
-        int h = browser.getHeight()/2;
-        g.setColor(Color.BLUE);
-        g.drawOval(w, h, 6, 6);
     }
 }
 

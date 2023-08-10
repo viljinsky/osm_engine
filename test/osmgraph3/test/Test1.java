@@ -72,13 +72,13 @@ class DefaultMouseAdapter extends MouseAdapter {
         
         for (Way way : graph.ways) {
             
-            if (browser.wayBound(way).contains(e.getPoint())) {
+            if (browser.wayRectangle(way).contains(e.getPoint())) {
                 System.out.println("way cenner " + way);
             }
             
             for (Edge edge : way.edges()) {
                 Node center = edge.center();
-                if (browser.nodeBound(center).contains(e.getPoint())) {
+                if (browser.nodeRectangle(center).contains(e.getPoint())) {
                     browser.graph.add(center);
                     way.add(way.indexOf(edge.node2), center);                    
                     System.out.println("edge click :" + edge + " " + way);

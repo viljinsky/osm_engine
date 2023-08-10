@@ -15,7 +15,6 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Locale;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JList;
@@ -219,6 +218,12 @@ class App extends Container implements CommandManager.CommandListener, ChangeLis
         });
         relationList.addListSelectionListener(tagsListener);
         wayList.addListSelectionListener(tagsListener);
+        wayList.addListSelectionListener(e->{
+            Way way = wayList.getSelectedValue();
+            if(way!=null){
+                browser.setBound(way.bound());
+            }
+        });
         setLayout(new BorderLayout());
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, browser, sideBar);
         splitPane.setResizeWeight(1.0);

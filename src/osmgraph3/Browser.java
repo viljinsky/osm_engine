@@ -1,5 +1,6 @@
 package osmgraph3;
 
+import java.awt.Color;
 import osmgraph3.graph.Graph;
 import osmgraph3.graph.Way;
 import osmgraph3.graph.Relation;
@@ -17,6 +18,7 @@ import javax.swing.event.ChangeListener;
 import osmgraph3.controls.NodeList;
 import osmgraph3.controls.RelationList;
 import osmgraph3.controls.WayList;
+import osmgraph3.graph.Bound;
 
 /**
  *
@@ -61,39 +63,30 @@ public class Browser extends JComponent implements ChangeListener {
     }
 
     public Node nodeAt(Point p) {
-        if (graph != null) {           
+        if (graph != null) {
             for (Node node : graph.nodes) {
                 int x = lonToX(node.lon);
                 int y = latToY(node.lat);
-                if (new Rectangle(x-3,y-3,6,6).contains(p)){
+                if (new Rectangle(x - 3, y - 3, 6, 6).contains(p)) {
                     return node;
-                }                
+                }
             }
         }
         return null;
     }
 
-    public Rectangle nodeBound(Node node) {
+    public Rectangle nodeRectangle(Node node) {
         int x = lonToX(node.lon);
         int y = latToY(node.lat);
         return new Rectangle(x - 3, y - 3, 6, 6);
     }
 
-    public Rectangle wayBound(Way way) {
-        double min_lon = Double.MAX_VALUE;
-        double min_lat = Double.MAX_VALUE;
-        double max_lon = Double.MIN_VALUE;
-        double max_lat = Double.MIN_VALUE;
-        for (Node node : way) {
-            min_lon = Math.min(min_lon, node.lon);
-            min_lat = Math.min(min_lat, node.lat);
-            max_lon = Math.max(max_lon, node.lon);
-            max_lat = Math.max(max_lat, node.lat);
-        }
-        int x = lonToX(min_lon);
-        int y = latToY(min_lat);
-        int w = (int) ((max_lon - min_lon) * zoom);
-        int h = (int) ((max_lat - min_lat) * zoom);
+    public Rectangle wayRectangle(Way way) {
+        Bound bound = way.bound();
+        int x = lonToX(bound.minlon);
+        int y = latToY(bound.minlat);
+        int w = (int) ((bound.maxlon - bound.minlon) * zoom);
+        int h = (int) ((bound.maxlat - bound.minlat) * zoom);
         return new Rectangle(x, y, w, h);
     }
 
@@ -128,17 +121,6 @@ public class Browser extends JComponent implements ChangeListener {
         repaint();
     }
 
-    public void setBound(double[] bound) {
-        setBound(bound[0], bound[1], bound[2], bound[3]);
-    }
-
-    public void setBound(double minlon, double minlat, double maxlon, double maxlat) {
-        this.minlon = minlon;
-        this.minlat = minlat;
-        this.maxlon = maxlon;
-        this.maxlat = maxlat;
-    }
-
     @Override
     public void paint(Graphics g) {
         if (graphList == null) {
@@ -147,6 +129,12 @@ public class Browser extends JComponent implements ChangeListener {
         for (Graph gr : graphList) {
             gr.draw(this, g);
         }
+        // drow center
+        int w = getWidth()/2;
+        int h = getHeight()/2;
+        g.setColor(Color.BLUE);
+        g.drawOval(w-3, h-3, 6, 6);
+        
     }
 
     public double getZoom() {
@@ -161,39 +149,26 @@ public class Browser extends JComponent implements ChangeListener {
         setZoom(zoom * 0.5);
     }
 
-    public void setZoom(double zoom) {        
-        
+    public void setZoom(double zoom) {
+
         int w = getWidth();
         int h = getHeight();
-        
-        Node aldCenter = node(new Point(w/2,h/2));
+
+        Node aldCenter = node(new Point(w / 2, h / 2));
         this.zoom = zoom;
         maxlon = minlon + w / zoom;
         maxlat = minlat + h / zoom;
         setCenter(aldCenter);
-        repaint();
-        change();
     }
-    
-    public void setCenter(Node center){
+
+    public void setCenter(Node center) {
         int w = getWidth();
         int h = getHeight();
-        Node newCenter = node(new Point(w/2,h/2));
-        
-        double dlon = -newCenter.lon+center.lon;
-        double dlat = -newCenter.lat+center.lat ;
-        System.out.println(dlon+" "+dlat);
-        move(dlon, dlat);                
-    }
+        Node newCenter = node(new Point(w / 2, h / 2));
 
-    private void move(double dlon, double dlat) {
-        maxlon += dlon;
-        minlon += dlon;
-        minlat += dlat;
-        maxlat += dlat;
-        repaint();
-        change();
-
+        double dlon = center.lon - newCenter.lon;
+        double dlat = center.lat - newCenter.lat;
+        move(dlon, dlat);
     }
 
     public void move_south() {
@@ -210,6 +185,16 @@ public class Browser extends JComponent implements ChangeListener {
 
     public void move_east() {
         move((minlon - maxlon) * .25, .0);
+    }
+
+    private void move(double dlon, double dlat) {
+        maxlon += dlon;
+        minlon += dlon;
+        minlat += dlat;
+        maxlat += dlat;
+        repaint();
+        change();
+
     }
 
     void onClickNode(Node node) {
@@ -260,9 +245,20 @@ public class Browser extends JComponent implements ChangeListener {
     public String statusText() {
         return String.format(Locale.US, "zoom : %.3f min : %.3f %.3f max : %.3f %.3f", zoom, minlon, minlat, maxlon, maxlat);
     }
-    
-    public String statusText(Point p){
-        return statusText() + " "+String.format(Locale.US,"lon : %.3f,lat : %.3f", xToLon(p.x),yToLat(p.y));
+
+    public String statusText(Point p) {
+        return statusText() + " " + String.format(Locale.US, "lon : %.3f,lat : %.3f", xToLon(p.x), yToLat(p.y));
+    }
+
+    void setBound(Bound bound) {
+        System.out.println(bound);
+
+        minlon = bound.minlon;
+        minlat = bound.maxlat;
+        maxlon = bound.maxlon;
+        maxlat = bound.maxlat;
+        zoom = Math.min((getWidth() * .8) / (maxlon - minlon), (getHeight() * .8) / (maxlat - minlat));
+        setCenter(bound.center());
     }
 
 }
