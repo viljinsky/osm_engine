@@ -16,6 +16,14 @@ public class Way extends ArrayList<Node> implements GraphElement {
     
     public Tags tags;
 
+    public Way(Node... nodes) {
+        for(Node n:nodes){
+            add(n);
+        }
+    }
+    
+    
+
     public Node center() {
         double minlon = Double.MAX_VALUE;
         double minlat = Double.MAX_VALUE;

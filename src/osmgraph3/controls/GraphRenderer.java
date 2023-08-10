@@ -64,6 +64,12 @@ public class GraphRenderer {
             }
 
         }
+        
+        // drow center
+        int w = browser.getWidth()/2;
+        int h = browser.getHeight()/2;
+        g.setColor(Color.BLUE);
+        g.drawOval(w, h, 6, 6);
     }
 }
 

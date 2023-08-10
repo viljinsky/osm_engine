@@ -211,6 +211,12 @@ class App extends Container implements CommandManager.CommandListener, ChangeLis
         });
         graphList.addListSelectionListener(tagsListener);
         nodeList.addListSelectionListener(tagsListener);
+        nodeList.addListSelectionListener(e->{
+            Node node = nodeList.getSelectedValue();
+            if (node!=null){
+                browser.setCenter(node);
+            }
+        });
         relationList.addListSelectionListener(tagsListener);
         wayList.addListSelectionListener(tagsListener);
         setLayout(new BorderLayout());

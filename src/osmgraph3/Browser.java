@@ -60,15 +60,14 @@ public class Browser extends JComponent implements ChangeListener {
         return new Node(xToLon(point.x), yToLat(point.y));
     }
 
-    Node nodeAt(Point p) {
-        if (graph != null) {
-            int xoffset = (int) (minlon * zoom);
-            int yoffset = (int) (minlat * zoom);
-            Point p1 = new Point(xoffset + p.x, yoffset + p.y);
+    public Node nodeAt(Point p) {
+        if (graph != null) {           
             for (Node node : graph.nodes) {
-                if (nodeBound(node).contains(p1)) {
+                int x = lonToX(node.lon);
+                int y = latToY(node.lat);
+                if (new Rectangle(x-3,y-3,6,6).contains(p)){
                     return node;
-                }
+                }                
             }
         }
         return null;
@@ -162,14 +161,29 @@ public class Browser extends JComponent implements ChangeListener {
         setZoom(zoom * 0.5);
     }
 
-    public void setZoom(double zoom) {
+    public void setZoom(double zoom) {        
+        
         int w = getWidth();
         int h = getHeight();
+        
+        Node aldCenter = node(new Point(w/2,h/2));
         this.zoom = zoom;
         maxlon = minlon + w / zoom;
         maxlat = minlat + h / zoom;
+        setCenter(aldCenter);
         repaint();
         change();
+    }
+    
+    public void setCenter(Node center){
+        int w = getWidth();
+        int h = getHeight();
+        Node newCenter = node(new Point(w/2,h/2));
+        
+        double dlon = -newCenter.lon+center.lon;
+        double dlat = -newCenter.lat+center.lat ;
+        System.out.println(dlon+" "+dlat);
+        move(dlon, dlat);                
     }
 
     private void move(double dlon, double dlat) {
@@ -245,6 +259,10 @@ public class Browser extends JComponent implements ChangeListener {
 
     public String statusText() {
         return String.format(Locale.US, "zoom : %.3f min : %.3f %.3f max : %.3f %.3f", zoom, minlon, minlat, maxlon, maxlat);
+    }
+    
+    public String statusText(Point p){
+        return statusText() + " "+String.format(Locale.US,"lon : %.3f,lat : %.3f", xToLon(p.x),yToLat(p.y));
     }
 
 }
