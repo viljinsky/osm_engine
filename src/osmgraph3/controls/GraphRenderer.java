@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package osmgraph3.controls;
 
 import java.awt.Color;
@@ -40,6 +36,13 @@ public class GraphRenderer {
 
             g.setColor(Color.LIGHT_GRAY);
             r = browser.wayRectangle(way);
+            
+        for (Node node : way) {
+            Rectangle r2 = browser.nodeRectangle(node);
+            g.drawRect(r2.x,r2.y, r2.width, r2.height);
+        }
+            
+            
             g.drawRect(r.x, r.y, r.width, r.height);
 
             for (Edge edge : way.edges()) {

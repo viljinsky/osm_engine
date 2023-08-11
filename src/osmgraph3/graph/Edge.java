@@ -1,10 +1,13 @@
 package osmgraph3.graph;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  *
  * @author viljinsky
  */
-public class Edge {
+public class Edge implements GraphElement{
     
     public Node node1;
     public Node node2;
@@ -21,5 +24,22 @@ public class Edge {
     public String toString(){
         return String.format("edge  : %d %d", node1.id,node2.id);
     }
+
+    @Override
+    public void put(String key, Object value) {
+        throw new UnsupportedOperationException("Not supported yet."); 
+    }
+
+    @Override
+    public Object get(String key) {
+        throw new UnsupportedOperationException("Not supported yet."); 
+    }
+
+    @Override
+    public Set<String> keySet() {
+        return new HashSet<>();
+    }
+    
+    
     
 }

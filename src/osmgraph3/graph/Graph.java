@@ -1,32 +1,21 @@
 package osmgraph3.graph;
 
 import java.awt.Color;
-import java.awt.Graphics;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import osmgraph3.Browser;
-import osmgraph3.controls.GraphRenderer;
-import osmgraph3.controls.NodeList;
-import osmgraph3.controls.RelationList;
-import osmgraph3.controls.WayList;
 
 /**
  *
  * @author viljinsky
  */
 public class Graph implements GraphElement {
-
-    private GraphRenderer renderer = new GraphRenderer(this);
-    
-    public void draw(Browser browser,Graphics g){
-        renderer.render(browser, g, true);
-    }
 
     @Override
     public void put(String key, Object value) {
@@ -50,10 +39,6 @@ public class Graph implements GraphElement {
     }
 
     public Color color = Color.ORANGE;
-
-    public  NodeList nodeList;
-    public WayList wayList;
-    public RelationList relationList;
 
     public Tags tags;
     public List<Node> nodes = new ArrayList<>();
@@ -89,7 +74,6 @@ public class Graph implements GraphElement {
 
     public void remove(Node node) {
         nodes.remove(node);
-        nodeList.remove(node);
         change();
     }
 
@@ -116,14 +100,8 @@ public class Graph implements GraphElement {
 
     public void clear() {
         relations.clear();
-        relationList.clear();
-
         ways.clear();
-        wayList.clear();
-
         nodes.clear();
-        nodeList.clear();
-
         change();
     }
 
@@ -141,9 +119,6 @@ public class Graph implements GraphElement {
             }
         }
         ways.add(way);
-        if (wayList != null) {
-            wayList.add(way);
-        }
         change();
 
     }
@@ -159,9 +134,6 @@ public class Graph implements GraphElement {
         node.id = ++last_node;
         node.put("key", "value");
         nodes.add(node);
-        if (nodeList != null) {
-            nodeList.add(node);
-        }
         change();
         return node;
     }
@@ -173,7 +145,7 @@ public void write(OutputStream out) throws Exception {
             writer.write("<osm>\n");
 
             for (Node node : nodes) {
-                writer.write(String.format("<node id='%d', lon='%8.6f', lat = '%8.6f' />\n", node.id, node.lon, node.lat));
+                writer.write(String.format(Locale.US,"<node id='%d' lon='%8.6f' lat = '%8.6f'/>\n", node.id, node.lon, node.lat));
             }
             for (Way way : ways) {
                 writer.write(String.format("<way id='%d'>\n", way.id));
@@ -182,7 +154,7 @@ public void write(OutputStream out) throws Exception {
                 }
                 if (way.tags != null) {
                     for (String k : way.keySet()) {
-                        writer.write(String.format("\t<tag k='%s', v='%s'/>\n", k, way.get(k)));
+                        writer.write(String.format("\t<tag k='%s' v='%s'/>\n", k, way.get(k)));
                     }
                 }
                 writer.write("</way>\n");

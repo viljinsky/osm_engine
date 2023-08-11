@@ -3,7 +3,6 @@ package osmgraph3;
 import java.awt.Color;
 import osmgraph3.graph.Graph;
 import osmgraph3.graph.Way;
-import osmgraph3.graph.Relation;
 import osmgraph3.graph.Node;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -15,9 +14,7 @@ import java.util.Locale;
 import javax.swing.JComponent;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import osmgraph3.controls.NodeList;
-import osmgraph3.controls.RelationList;
-import osmgraph3.controls.WayList;
+import osmgraph3.controls.GraphRenderer;
 import osmgraph3.graph.Bound;
 
 /**
@@ -32,10 +29,7 @@ public class Browser extends JComponent implements ChangeListener {
     public double maxlon;
     public double maxlat;
     public Graph graph;
-    public Iterable<Graph> graphList;
-    public WayList wayList = new WayList();
-    public NodeList nodeList = new NodeList();
-    public RelationList relationList = new RelationList();
+//    public Iterable<Graph> graphList;
 
     @Override
     public void stateChanged(ChangeEvent e) {
@@ -92,30 +86,9 @@ public class Browser extends JComponent implements ChangeListener {
 
     public void setGraph(Graph graph) {
         if (graph != null) {
-
-            nodeList.clear();
-            for (Node node : graph.nodes) {
-                nodeList.add(node);
-            }
-            graph.nodeList = nodeList;
-
-            wayList.clear();
-            for (Way way : graph.ways) {
-                wayList.add(way);
-            }
-            graph.wayList = wayList;
-
-            relationList.clear();
-            for (Relation r : graph.relations) {
-                relationList.add(r);
-            }
-            graph.relationList = relationList;
-
             graph.addChangeListener(this);
         } else {
-            nodeList.clear();
-            wayList.clear();
-            relationList.clear();
+            graph.removeChangeListener(this);
         }
         this.graph = graph;
         repaint();
@@ -123,18 +96,22 @@ public class Browser extends JComponent implements ChangeListener {
 
     @Override
     public void paint(Graphics g) {
-        if (graphList == null) {
-            throw new RuntimeException("Browser : graphlist is null");
+        if (graph != null) {
+            new GraphRenderer(graph).render(this, g, true);
         }
-        for (Graph gr : graphList) {
-            gr.draw(this, g);
-        }
+//        if (graphList == null) {
+//            throw new RuntimeException("Browser : graphlist is null");
+//        }
+//        for (Graph gr : graphList) {
+//            GraphRenderer renderer = new GraphRenderer(gr);
+//            renderer.render(this, g, true);
+//        }
         // drow center
-        int w = getWidth()/2;
-        int h = getHeight()/2;
+        int w = getWidth() / 2;
+        int h = getHeight() / 2;
         g.setColor(Color.BLUE);
-        g.drawOval(w-3, h-3, 6, 6);
-        
+        g.drawOval(w - 3, h - 3, 6, 6);
+
     }
 
     public double getZoom() {
@@ -187,37 +164,42 @@ public class Browser extends JComponent implements ChangeListener {
         move((minlon - maxlon) * .25, .0);
     }
 
-    private void move(double dlon, double dlat) {
+    public void move(double dlon, double dlat) {
         maxlon += dlon;
         minlon += dlon;
         minlat += dlat;
         maxlat += dlat;
         repaint();
         change();
-
     }
 
-    void onClickNode(Node node) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
-    public Browser(Iterable<Graph> graphList) {
+    public Browser() {
         setPreferredSize(new Dimension(400, 400));
-        this.graphList = graphList;
     }
 
+//    public Browser(Iterable<Graph> graphList) {
+//        setPreferredSize(new Dimension(400, 400));
+////        this.graphList = graphList;
+//    }
     public void reset() {
         int w = getWidth();
         int h = getHeight();
-        minlon = Double.MAX_VALUE;
-        minlat = Double.MAX_VALUE;
-        maxlon = Double.MIN_VALUE;
-        maxlat = Double.MIN_VALUE;
-        for (Node node : graph.nodes) {
-            minlon = Math.min(minlon, node.lon);
-            minlat = Math.min(minlat, node.lat);
-            maxlon = Math.max(maxlon, node.lon);
-            maxlat = Math.max(maxlat, node.lat);
+        if (graph.nodes.isEmpty()) {
+            minlon = 10.0;
+            minlat = 20.0;
+            maxlon = 10.1;
+            maxlat = 10.2;
+        } else {
+            minlon = Double.MAX_VALUE;
+            minlat = Double.MAX_VALUE;
+            maxlon = Double.MIN_VALUE;
+            maxlat = Double.MIN_VALUE;
+            for (Node node : graph.nodes) {
+                minlon = Math.min(minlon, node.lon);
+                minlat = Math.min(minlat, node.lat);
+                maxlon = Math.max(maxlon, node.lon);
+                maxlat = Math.max(maxlat, node.lat);
+            }
         }
         zoom = Math.max(w / (maxlon - minlon), h / maxlat - minlat);
         maxlon = minlon + w / zoom;
@@ -251,8 +233,6 @@ public class Browser extends JComponent implements ChangeListener {
     }
 
     void setBound(Bound bound) {
-        System.out.println(bound);
-
         minlon = bound.minlon;
         minlat = bound.maxlat;
         maxlon = bound.maxlon;

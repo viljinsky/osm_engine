@@ -11,7 +11,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
-import osmgraph3.controls.CommandManager;
 import osmgraph3.graph.GraphElement;
 
 public class TagList extends JComponent implements CommandManager.CommandListener {

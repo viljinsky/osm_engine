@@ -7,12 +7,7 @@ import osmgraph3.graph.Relation;
 import osmgraph3.graph.Member;
 import osmgraph3.graph.Node;
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Container;
-import java.awt.Rectangle;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import javax.swing.JComponent;
@@ -26,50 +21,14 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import osmgraph3.controls.CommandManager;
-import osmgraph3.controls.GraphList;
-import osmgraph3.controls.NodeList;
-import osmgraph3.controls.RelationList;
+import osmgraph3.controls.GraphElementList;
+//import osmgraph3.controls.GraphList;
+import osmgraph3.controls.GraphManager;
+import osmgraph3.controls.GraphViewAdapter;
 import osmgraph3.controls.SideBar;
 import osmgraph3.controls.StatusBar;
-import osmgraph3.controls.WayList;
-import osmgraph3.graph.Edge;
 import osmgraph3.graph.GraphElement;
 
-class Graph1 extends Graph {
-
-    public Graph1() {
-        super(Color.BLUE);
-        add(3.0, 3.0);
-        add(4.0, 3.0);
-        add(4.0, 4.0);
-        add(3.0, 4.0);
-        Way way = new Way();
-        way.add(5.0, 3.0);
-        way.add(6.0, 3.0);
-        way.add(6.0, 4.0);
-        way.add(5.0, 4.0);
-        way.close();
-        add(way);
-        way = new Way();
-        way.add(5.0, 4.5);
-        way.add(6.0, 4.5);
-        add(way);
-
-    }
-
-}
-
-class Graph2 extends Graph {
-
-    public Graph2() {
-        super(Color.RED);
-        OSMParser parser = new OSMParser(new File("C:\\Users\\viljinsky\\Desktop", "test.osm"));
-        nodes = parser.nodes;
-        ways = parser.ways;
-        relations = parser.relations;
-    }
-
-}
 
 /**
  *
@@ -94,7 +53,6 @@ class App extends Container implements CommandManager.CommandListener, ChangeLis
     public static final String ZOOM_IN = "+";
     public static final String ZOOM_OUT = "-";
     public static final String RESET = "Rst";
-    Graph graph;
 
     @Override
     public void doCommand(String command) {
@@ -126,16 +84,24 @@ class App extends Container implements CommandManager.CommandListener, ChangeLis
                     browser.graph.clear();
                     break;
                 case ADD:
-                    graphList.add(new Graph1());
+                    browser.setGraph(new GraphManager.Graph1());
+                    nodeList.setList(browser.graph.nodes);
+                    wayList.setList(browser.graph.ways);
+                    relationList.setList(browser.graph.relations);
+//                    graphList.add(new GraphManager.Graph1());
                     browser.reset();
                     break;
                 case EDIT:
                     break;
-                case DELETE:
-                    graphList.remove(browser.graph);
-                    break;
+//                case DELETE:
+//                    graphList.remove(browser.graph);
+//                    break;
                 case READ:
-                    graphList.add(new Graph2());
+                    browser.setGraph(new GraphManager.Graph2());
+                    nodeList.setList(browser.graph.nodes);
+                    wayList.setList(browser.graph.ways);
+                    relationList.setList(browser.graph.relations);
+                    
                     browser.reset();
                     break;
                 case WRITE:
@@ -156,32 +122,15 @@ class App extends Container implements CommandManager.CommandListener, ChangeLis
         }
     }
     CommandManager commandManager = new CommandManager(this, ADD, EDIT, DELETE, null, ZOOM_IN, ZOOM_OUT, null, WEST, NOTH, EAST, SOUTH, null, RESET, CLEAR, null, READ, WRITE);
-    GraphList graphList = new GraphList();
-    Browser browser = new Browser(graphList) {
-        @Override
-        void onClickNode(Node node) {
-            nodeList.setSelectedValue(node, true);
-            wayList.setSelectedIndex(-1);
-            for (Way way : graph.ways) {
-                if (way.contains(node)) {
-                    wayList.setSelectedValue(way, true);
-                }
-            }
-            relationList.setSelectedIndex(-1);
-            for (Relation relation : graph.relations) {
-                for (Member m : relation) {
-                    if (m.ref == node.id) {
-                        relationList.setSelectedValue(relation, true);
-                    }
-                }
-            }
-        }
-    };
-    NodeList nodeList = browser.nodeList;
-    WayList wayList = browser.wayList;
-    RelationList relationList = browser.relationList;
+//    GraphList graphList = new GraphList();
+    Browser browser = new Browser();
+    
+    GraphElementList nodeList = new GraphElementList();
+    GraphElementList wayList = new GraphElementList();
+    GraphElementList relationList = new GraphElementList();
+    
     TagList tagEditor = new TagList();
-    SideBar sideBar = new SideBar(graphList.view(), wayList.view(), nodeList.view(), relationList.view(), tagEditor.view());
+    SideBar sideBar = new SideBar(wayList.view(), nodeList.view(), relationList.view(), tagEditor.view());
     JComponent commandBar = commandManager.commandBar();
     StatusBar statusBar = new StatusBar();
     ListSelectionListener tagsListener = new ListSelectionListener() {
@@ -200,68 +149,51 @@ class App extends Container implements CommandManager.CommandListener, ChangeLis
     }
 
     public App() {
-        graphList.addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting()) {
-                GraphList l = (GraphList) e.getSource();
-                Graph graph = l.getSelectedValue();
-                System.out.println(graph);
-                browser.setGraph(graph);
-            }
-        });
-        graphList.addListSelectionListener(tagsListener);
+//        graphList.addListSelectionListener(e -> {
+//            if (!e.getValueIsAdjusting()) {
+//                GraphList l = (GraphList) e.getSource();
+//                Graph graph = l.getSelectedValue();
+//                System.out.println(graph);
+//                browser.setGraph(graph);
+//                nodeList.setList(graph.nodes);
+//                wayList.setList(graph.ways);
+//                relationList.setList(graph.relations);
+//            }
+//        });
+//        graphList.addListSelectionListener(tagsListener);
         nodeList.addListSelectionListener(tagsListener);
-        nodeList.addListSelectionListener(e->{
-            Node node = nodeList.getSelectedValue();
-            if (node!=null){
-                browser.setCenter(node);
-            }
-        });
         relationList.addListSelectionListener(tagsListener);
         wayList.addListSelectionListener(tagsListener);
-        wayList.addListSelectionListener(e->{
-            Way way = wayList.getSelectedValue();
-            if(way!=null){
-                browser.setBound(way.bound());
-            }
-        });
+        
         setLayout(new BorderLayout());
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, browser, sideBar);
         splitPane.setResizeWeight(1.0);
         add(splitPane);
         add(commandBar, BorderLayout.PAGE_START);
         add(statusBar, BorderLayout.PAGE_END);
-//        browser.addMouseListener(new GraphListener(browser));
         browser.addChangeListener(this);
-        browser.addMouseMotionListener(new MouseAdapter() {
+        
+        GraphViewAdapter ma = new GraphViewAdapter(browser){
             @Override
-            public void mouseMoved(MouseEvent e) {
-                statusBar.setStatusText(browser.statusText() + " " + String.format("x : %d y : %d lon : %.3f lat : %.3f", e.getX(), e.getY(), browser.xToLon(e.getX()), browser.yToLat(e.getY())));
-
-                Graph g = browser.graph;
-                if (g != null) {
-                    for (Node node : g.nodes) {
-                        int x = browser.lonToX(node.lon);
-                        int y = browser.latToY(node.lat);
-                        Rectangle R = new Rectangle(x - 3, y - 3, 6, 6);
-                        if (R.contains(e.getPoint())) {
-                            statusBar.setStatusText(node.toString());
-                        }
-                    }
-                    for(Way way : g.ways){
-                        for(Edge edge:way.edges()){
-                            Node c = edge.center();
-                            int x = browser.lonToX(c.lon);
-                            int y = browser.latToY(c.lat);
-                            Rectangle R = new Rectangle(x - 3, y - 3, 6, 6);
-                            if (R.contains(e.getPoint())) {
-                                statusBar.setStatusText(way.toString()+" "+edge.toString());
-                            }
-                        }
-                    }
+            public void over(GraphElement e) {
+                statusBar.setStatusText(e.toString());
+            }
+            
+            @Override
+            public void click(GraphElement e) {
+                if (e instanceof Node){
+                    nodeList.setSelectedValue(e, true);
+                }
+                if (e instanceof Way){
+                    wayList.setSelectedValue(e, true);
                 }
             }
-
-        });
+            
+        };
+        browser.addMouseListener(ma);
+        browser.addMouseMotionListener(ma);
+        browser.addMouseWheelListener(ma);
+        
     }
 
     public void execute() {
