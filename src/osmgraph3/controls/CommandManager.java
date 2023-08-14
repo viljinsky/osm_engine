@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package osmgraph3.controls;
 
 import java.awt.event.ActionEvent;
@@ -65,8 +61,12 @@ public class CommandManager extends ArrayList<Action> {
         return commandBar;
     }
 
-    public JMenu menu() {
-        JMenu menu = new JMenu("File");
+    public JMenu menu(){
+        return menu("Def.menu");
+    }
+    
+    public JMenu menu(String tilte) {
+        JMenu menu = new JMenu(tilte);
         for (Action a : this) {
             if (a == null) {
                 menu.addSeparator();

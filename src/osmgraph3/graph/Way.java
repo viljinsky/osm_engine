@@ -13,12 +13,16 @@ import java.util.Set;
  */
 public class Way extends ArrayList<Node> implements GraphElement {
     
-    public long id;
+    public Long id;
     
     public Tags tags;
 
     public Way(Node... nodes) {
         addAll(Arrays.asList(nodes));
+    }
+    
+    public boolean containsKey(String key){
+        return tags!=null && tags.containsKey(key);
     }
     
     public Bound bound(){

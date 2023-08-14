@@ -6,14 +6,27 @@ import javax.swing.DefaultListModel;
 import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import osmgraph3.graph.GraphElement;
 
 /**
  *
  * @author viljinsky
  */
-public class GraphElementList extends JList {
+public class GraphElementList extends JList implements ListSelectionListener{
     
     List list = new ArrayList<>();
+    TagList tagList = null;
+
+    @Override
+    public void valueChanged(ListSelectionEvent e) {
+        if (tagList!=null){
+            tagList.setValues((GraphElement)getSelectedValue());
+        }
+    }
+    
+    
 
     class MyModel extends DefaultListModel {
 
@@ -30,10 +43,16 @@ public class GraphElementList extends JList {
     MyModel model = new MyModel();
 
     public GraphElementList() {
+        this(null);
+    }
+
+    public GraphElementList(TagList tagLst) {
+        this.tagList = tagLst;
+        addListSelectionListener(this);
         setModel(model);
     }
 
-    public void setList(List list) {
+    public void setValues(List list) {
         this.list = list;
         setModel(new MyModel());
     }

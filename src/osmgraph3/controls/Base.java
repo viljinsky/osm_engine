@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package osmgraph3.controls;
 
 import java.awt.BorderLayout;
@@ -10,6 +6,9 @@ import java.awt.Dimension;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -18,6 +17,15 @@ import javax.swing.JFrame;
 public class Base extends Container implements WindowListener{
 
     JFrame frame;
+    
+    JMenuBar menuBar;
+    
+    public void addMenu(JMenu menu){
+        if (menuBar == null){
+            menuBar = new JMenuBar();
+        }
+        menuBar.add(menu);
+    }
     
     @Override
     public void windowOpened(WindowEvent e) {
@@ -58,6 +66,9 @@ public class Base extends Container implements WindowListener{
     
     public void execute(){
         frame = new JFrame();
+        if (menuBar!=null){
+            frame.setJMenuBar(menuBar);
+        }
         frame.setContentPane(this);
         frame.addWindowListener(this);
         frame.pack();
@@ -70,4 +81,11 @@ public class Base extends Container implements WindowListener{
         
     }
     
+    public void showMessage(String message){
+        JOptionPane.showMessageDialog(getParent(), message,"Information",JOptionPane.INFORMATION_MESSAGE);
+    }
+    
+    public void showErrorMessage(String message){
+        JOptionPane.showMessageDialog(getParent(), message,"Error",JOptionPane.ERROR_MESSAGE);
+    }
 }

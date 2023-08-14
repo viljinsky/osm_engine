@@ -10,10 +10,17 @@ import java.util.Set;
  */
 public class Node implements GraphElement {
     
-    public long id;
+    public Long id;
     public double lon;
     public double lat;
     public Tags tags;
+
+    @Override
+    public Node center() {
+        return this;
+    }
+    
+    
 
     public Node(double lon, double lat) {
         this.lon = lon;
@@ -46,6 +53,12 @@ public class Node implements GraphElement {
         return tags.get(key);
     }
 
+    public boolean containsKey(Object key) {
+        return tags!=null && tags.containsKey(key);
+    }
+
+    
+    
     @Override
     public boolean equals(Object obj) {
         if (obj == null) {

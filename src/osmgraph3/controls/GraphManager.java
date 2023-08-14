@@ -14,6 +14,7 @@ import javax.swing.JMenu;
 import osmgraph3.Browser;
 import osmgraph3.OSMParser;
 import osmgraph3.graph.Graph;
+import osmgraph3.graph.Relation;
 import osmgraph3.graph.Way;
 
 /**
@@ -21,11 +22,26 @@ import osmgraph3.graph.Way;
  * @author viljinsky
  */
 public class GraphManager implements CommandManager.CommandListener {
+    
+    public static class Graph1Background extends Graph{
+
+        public Graph1Background() {
+            
+            Way way;
+            way = new Way();
+            way.add(1.25, 1.25);
+            way.add(3.25, 2.25);
+            way.add(4.25, 3.25);
+            way.add(5.25, 4.25);
+            add(way);
+            
+        }
+        
+    }
 
     public static class Graph1 extends Graph {
 
         public Graph1() {
-            super(Color.BLUE);
             add(3.0, 3.0);
             add(4.0, 3.0);
             add(4.0, 4.0);
@@ -41,6 +57,13 @@ public class GraphManager implements CommandManager.CommandListener {
             way.add(5.0, 4.5);
             way.add(6.0, 4.5);
             add(way);
+            
+            Relation relation = new Relation();
+            relation.add(1L,"node","");
+            relation.add(2L,"node","");
+            relation.add(3L,"node","");
+            relation.add(4L,"node","");
+            add(relation);
 
         }
 
@@ -49,7 +72,6 @@ public class GraphManager implements CommandManager.CommandListener {
     public static class Graph2 extends Graph {
 
         public Graph2() {
-            super(Color.RED);
             OSMParser parser = new OSMParser(new File("C:\\Users\\viljinsky\\Desktop", "test.osm"));
             nodes = parser.nodes;
             ways = parser.ways;
@@ -61,7 +83,6 @@ public class GraphManager implements CommandManager.CommandListener {
     public static class Graph3 extends Graph {
 
         public Graph3() {
-            super(Color.RED);
             add(1.0, 1.0);
             add(2.0, 2.0);
             add(3.0, 3.0);

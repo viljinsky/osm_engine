@@ -13,6 +13,8 @@ public interface GraphElement {
     public Object get(String key);
 
     public Set<String> keySet();
+    
+    public Node center();
 
 }
 

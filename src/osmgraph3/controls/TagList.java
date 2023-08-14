@@ -54,7 +54,7 @@ public class TagList extends JComponent implements CommandManager.CommandListene
         add(new JScrollPane(table));
     }
 
-    public void setTags(GraphElement tags) {
+    public void setValues(GraphElement tags) {
         this.tags = tags;
 
         while (model.getRowCount() > 0) {

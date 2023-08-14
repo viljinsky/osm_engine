@@ -4,74 +4,55 @@
  */
 package osmgraph3.test;
 
+import osmgraph3.controls.FileManager;
 import java.awt.BorderLayout;
 import java.awt.Container;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
 import osmgraph3.Browser;
 import osmgraph3.controls.GraphElementList;
-import osmgraph3.controls.GraphViewAdapter;
+import osmgraph3.controls.GraphAdapter;
+import osmgraph3.controls.GraphManager;
+import osmgraph3.controls.GraphAdapter2;
 import osmgraph3.controls.SideBar;
 import osmgraph3.controls.StatusBar;
-import osmgraph3.graph.Node;
-import osmgraph3.graph.Way;
+import osmgraph3.graph.Graph;
 
-class MouseAdapter2 extends MouseAdapter {
-
-    Browser browser;
-    Node start = null;
-
-    public MouseAdapter2(Browser browser) {
-        this.browser = browser;
-        browser.addMouseListener(this);
-        browser.addMouseMotionListener(this);
-        browser.addMouseWheelListener(this);
-    }
-
-    @Override
-    public void mouseReleased(MouseEvent e) {
-        Node node = browser.nodeAt(e.getPoint());
-        if (node == null){
-            node = browser.node(e.getPoint());
-            
-            if (start!=null && !start.equals(node)){
-                browser.graph.add(new Way(start,node));
-            }
-            start = null;
-        }
-    }
-
-    
-    
-    @Override
-    public void mousePressed(MouseEvent e) {
-        Node node = browser.nodeAt(e.getPoint());
-        if (node == null) {
-            node = browser.node(e.getPoint());
-            browser.graph.add(node);
-        }
-        start = node;
-    }
-
-}
 
 
 /**
  *
  * @author viljinsky
  */
-public class Test3 extends Container {
+public class Test3 extends Container implements FileManager.FileManagerListener{
+
+    @Override
+    public void onGraphNew(FileManager.FileManagerEvent e) {
+        Graph g = new Graph();
+        browser.setGraph(new GraphManager.Graph4());
+        browser.reset();
+    }
+
+    @Override
+    public void onGraphOpen(FileManager.FileManagerEvent e) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public void onGraphSave(FileManager.FileManagerEvent e) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+    
+    
 
     Browser browser = new Browser();
     StatusBar statusBar = new StatusBar();
-    GraphViewAdapter adapter = new GraphViewAdapter(browser);
-    FileManager fileManager = new FileManager(browser);
+    GraphAdapter adapter = new GraphAdapter(browser);
+    FileManager fileManager = new FileManager(this){};
     GraphElementList nodesList = new GraphElementList();
     SideBar sideBar = new SideBar(nodesList.view());
     
-    MouseAdapter2 adapter2 = new MouseAdapter2(browser);
+    GraphAdapter2 adapter2 = new GraphAdapter2(browser);
 
     public static void main(String[] args) {
         new Test3().execute();

@@ -1,5 +1,6 @@
 package osmgraph3;
 
+import com.sun.scenario.effect.impl.Renderer;
 import java.awt.Color;
 import osmgraph3.graph.Graph;
 import osmgraph3.graph.Way;
@@ -8,6 +9,8 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -29,8 +32,25 @@ public class Browser extends JComponent implements ChangeListener {
     public double maxlon;
     public double maxlat;
     public Graph graph;
-//    public Iterable<Graph> graphList;
 
+    GraphRenderer renderer = new GraphRenderer();
+    
+    protected GraphRenderer getGraphRenedere(Graph graph){
+        return renderer;
+    }
+    
+    public void setAdapter(MouseAdapter adapter){
+        addMouseListener(adapter);
+        addMouseMotionListener(adapter);
+        addMouseWheelListener(adapter);
+    }
+    
+    public void removeMousAdapter(MouseAdapter adapter){
+        removeMouseListener(adapter);
+        removeMouseMotionListener(adapter);
+        removeMouseWheelListener(adapter);
+    }
+    
     @Override
     public void stateChanged(ChangeEvent e) {
         repaint();
@@ -93,19 +113,26 @@ public class Browser extends JComponent implements ChangeListener {
         this.graph = graph;
         repaint();
     }
+    
+    List<Graph> layers = new ArrayList<>();
+    
+    public void addLayer(Graph layer){
+        layers.add(layer);
+    }
+    
+    public void removeLayer(Graph layer){
+        layers.remove(layer);
+    }
 
     @Override
     public void paint(Graphics g) {
-        if (graph != null) {
-            new GraphRenderer(graph).render(this, g, true);
+        for(Graph layer: layers){
+            getGraphRenedere(layer).render(this,layer, g, true);
         }
-//        if (graphList == null) {
-//            throw new RuntimeException("Browser : graphlist is null");
-//        }
-//        for (Graph gr : graphList) {
-//            GraphRenderer renderer = new GraphRenderer(gr);
-//            renderer.render(this, g, true);
-//        }
+        
+        if (graph != null) {
+            getGraphRenedere(graph).render(this,graph, g, true);
+        }
         // drow center
         int w = getWidth() / 2;
         int h = getHeight() / 2;
@@ -177,10 +204,6 @@ public class Browser extends JComponent implements ChangeListener {
         setPreferredSize(new Dimension(400, 400));
     }
 
-//    public Browser(Iterable<Graph> graphList) {
-//        setPreferredSize(new Dimension(400, 400));
-////        this.graphList = graphList;
-//    }
     public void reset() {
         int w = getWidth();
         int h = getHeight();

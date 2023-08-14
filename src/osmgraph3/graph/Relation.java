@@ -11,8 +11,14 @@ import java.util.Set;
 public class Relation extends ArrayList<Member> implements GraphElement {
 
     public Tags tags;
-    public long id;
+    public Long id;
 
+    @Override
+    public Node center() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+    
+    
     @Override
     public void put(String key, Object value) {
         if (tags == null) {
@@ -34,6 +40,20 @@ public class Relation extends ArrayList<Member> implements GraphElement {
     public String toString() {
         return String.format("relation %d : %d", id, size());
     }
+    
+    public boolean add(Long ref,String type,String role){
+        Member member = new Member();
+        member.ref = ref;
+        member.type = type;
+        member.role = role;
+        return add(member);
+    }
+
+    @Override
+    public boolean add(Member e) {
+        return super.add(e);
+    }
+    
 }
 
 

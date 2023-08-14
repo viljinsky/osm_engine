@@ -2,7 +2,7 @@ package osmgraph3.test;
 
 import osmgraph3.controls.GraphElementList;
 import osmgraph3.controls.GraphManager;
-import osmgraph3.controls.GraphViewAdapter;
+import osmgraph3.controls.GraphAdapter;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -69,9 +69,9 @@ public class Test2 extends Container {
         graphList.add(new GraphManager.Graph4());
         browser.setGraph(graphList.get(0));
         browser.reset();
-        nodeList.setList(browser.graph.nodes);
-        wayList.setList(browser.graph.ways);
-        relationList.setList(browser.graph.relations);
+        nodeList.setValues(browser.graph.nodes);
+        wayList.setValues(browser.graph.ways);
+        relationList.setValues(browser.graph.relations);
         
         ListSelectionListener listener = new ListSelectionListener() {
             @Override
@@ -80,7 +80,7 @@ public class Test2 extends Container {
                 GraphElementList list = (GraphElementList)e.getSource();
                 GraphElement element = (GraphElement) list.getSelectedValue();
                 if (element != null) {
-                    tagList.setTags(element);
+                    tagList.setValues(element);
                 }
             }
             }
@@ -106,7 +106,7 @@ public class Test2 extends Container {
             }
         });
 
-        MouseAdapter ma = new GraphViewAdapter(browser) {
+        MouseAdapter ma = new GraphAdapter(browser) {
             @Override
             public void over(GraphElement e) {
                 statusBar.setStatusText(e.toString());
@@ -125,9 +125,9 @@ public class Test2 extends Container {
             }
 
         };
-        browser.addMouseListener(ma);
-        browser.addMouseMotionListener(ma);
-        browser.addMouseWheelListener(ma);
+//        browser.addMouseListener(ma);
+//        browser.addMouseMotionListener(ma);
+//        browser.addMouseWheelListener(ma);
     }
 
 }

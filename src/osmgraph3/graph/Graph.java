@@ -1,6 +1,5 @@
 package osmgraph3.graph;
 
-import java.awt.Color;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
@@ -16,6 +15,13 @@ import javax.swing.event.ChangeListener;
  * @author viljinsky
  */
 public class Graph implements GraphElement {
+
+    @Override
+    public Node center() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+    
+    
 
     @Override
     public void put(String key, Object value) {
@@ -38,28 +44,37 @@ public class Graph implements GraphElement {
         return tags == null ? new HashSet<>() : tags.keySet();
     }
 
-    public Color color = Color.ORANGE;
 
     public Tags tags;
     public List<Node> nodes = new ArrayList<>();
     public List<Way> ways = new ArrayList<>();
     public List<Relation> relations = new ArrayList<>();
 
-    public Node nodeById(long id) {
+    public Node nodeById(Long id) {
         for (Node node : nodes) {
-            if (Long.compare(id, node.id) == 0) {
+            if (node.id.longValue() == id.longValue()) {
                 return node;
             }
         }
         return null;
     }
 
-    public Way wayById(long id) {
+    public Way wayById(Long id) {
         for (Way way : ways) {
-            if (way.id == id) {
+            
+            if (way.id.longValue() == id.longValue()) {
                 return way;
             }
 
+        }
+        return null;
+    }
+    
+    public Relation relationById(Long id){
+        for(Relation r:relations){
+            if (r.id.longValue() == id.longValue()){
+                return r;
+            }
         }
         return null;
     }
@@ -67,10 +82,6 @@ public class Graph implements GraphElement {
     public Graph() {
     }
 
-    public Graph(Color color) {
-        this();
-        this.color = color;
-    }
 
     public void remove(Node node) {
         nodes.remove(node);
@@ -106,9 +117,9 @@ public class Graph implements GraphElement {
     }
 
     //------------------------- w a y s ---------------------------------------- 
-    int last_way;
+    Long last_way = -1L;
 
-    public void add(Way way) {
+    public Way add(Way way) {
         way.id = ++last_way;
         way.put("key", "tag");
         way.put("key", way.id);
@@ -120,11 +131,20 @@ public class Graph implements GraphElement {
         }
         ways.add(way);
         change();
+        return way;
 
+    }
+    
+    Long last_relation = -1L;
+    
+    public Relation add(Relation relation){
+        relation.id = ++last_relation;
+        relations.add(relation);
+        return relation;
     }
 
     //------------------------- n o d e s   ------------------------------------
-    int last_node = -1;
+    Long last_node = -1L;
 
     public Node add(double lon,double lat){
         return add(new Node(lon,lat));
@@ -164,14 +184,14 @@ public void write(OutputStream out) throws Exception {
         }
     }
 
-    Relation relationById(long id) {
-        for (Relation r : relations) {
-            if (r.id == id) {
-                return r;
-            }
-        }
-        return null;
-    }
+//    Relation relationById(long id) {
+//        for (Relation r : relations) {
+//            if (r.id == id) {
+//                return r;
+//            }
+//        }
+//        return null;
+//    }
 
 }
 

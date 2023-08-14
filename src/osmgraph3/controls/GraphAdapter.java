@@ -19,7 +19,7 @@ import osmgraph3.graph.Way;
  *
  * @author viljinsky
  */
-public class GraphViewAdapter extends MouseAdapter {
+public class GraphAdapter extends MouseAdapter {
     
     Point start;
     Browser browser;
@@ -30,8 +30,9 @@ public class GraphViewAdapter extends MouseAdapter {
     public void click(GraphElement e){
     }
 
-    public GraphViewAdapter(Browser Browser) {
+    public GraphAdapter(Browser Browser) {
         this.browser = Browser;
+        browser.setAdapter(this);
     }
 
     @Override

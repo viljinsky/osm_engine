@@ -1,19 +1,14 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
-package osmgraph3.test;
+package osmgraph3.controls;
 
-import java.awt.Color;
+import java.awt.Component;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.EventObject;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JOptionPane;
-import osmgraph3.Browser;
 import osmgraph3.OSMParser;
-import osmgraph3.controls.CommandManager;
 import osmgraph3.graph.Graph;
 
 /**
@@ -22,15 +17,56 @@ import osmgraph3.graph.Graph;
  */
 public class FileManager implements CommandManager.CommandListener {
     
-    Browser browser;
+    Component parent = null;
+    
+    public static class FileManagerEvent extends EventObject{
+        Graph graph;
+        File file;
+
+        public FileManagerEvent(Object source) {
+            super(source);
+        }
+
+        public FileManagerEvent(Object source,Graph graph) {
+            super(source);
+            this.graph = graph;
+        }
+
+        public FileManagerEvent(Object source,File file) {
+            super(source);
+            this.file = file;
+        }
+
+        public Graph getGraph() {
+            return graph;
+        }
+
+        public File getFile() {
+            return file;
+        }
+             
+        
+        
+    }
+    
+    public interface FileManagerListener{
+        public void onGraphNew(FileManagerEvent e);
+        public void onGraphOpen(FileManagerEvent e);
+        public void onGraphSave(FileManagerEvent e);
+    }
+    
+    
+    FileManagerListener listener;
+   
+    
     public static final String OPEN = "open";
     public static final String SAVE = "save";
     public static final String NEW = "new";
     public static final String SAVE_AS = "save_as";
     public static final String EXIT = "exit";
 
-    public FileManager(Browser browser) {
-        this.browser = browser;
+    public FileManager(FileManagerListener listener) {
+        this.listener = listener;
     }
     CommandManager commandManager = new CommandManager(this, NEW, OPEN, SAVE, null, EXIT);
 
@@ -55,7 +91,7 @@ public class FileManager implements CommandManager.CommandListener {
                     throw new UnsupportedOperationException("unsupported command" + command);
             }
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(browser, e.getMessage());
+            JOptionPane.showMessageDialog(parent, e.getMessage());
         }
     }
 
@@ -64,24 +100,30 @@ public class FileManager implements CommandManager.CommandListener {
     }
 
     public JMenu menu() {
-        return commandManager.menu();
+        return commandManager.menu("File");
     }
     File source;
     String userDir = System.getProperty("user.home");
     File dir = new File(userDir, "/Desktop");
+    
+    public void onFileOpen(Graph graph){
+    }
 
     public void open() throws Exception {
         JFileChooser fileChooser = new JFileChooser(dir);
         fileChooser.setSelectedFile(source);
-        int ret_val = fileChooser.showOpenDialog(browser);
+        int ret_val = fileChooser.showOpenDialog(parent);
         if (ret_val == JFileChooser.APPROVE_OPTION) {
             OSMParser p = new OSMParser(fileChooser.getSelectedFile());
-            Graph graph = new Graph(Color.PINK);
+            Graph graph = new Graph();
             graph.nodes = p.nodes;
             graph.ways = p.ways;
             graph.relations = p.relations;
-            browser.setGraph(graph);
-            browser.reset();
+            
+            listener.onGraphOpen(new FileManagerEvent(this,graph));
+//            onFileOpen(graph);
+//            browser.setGraph(graph);
+//            browser.reset();
             source = fileChooser.getSelectedFile();
             dir = fileChooser.getCurrentDirectory();
         }
@@ -90,14 +132,16 @@ public class FileManager implements CommandManager.CommandListener {
     public void save() throws Exception {
         JFileChooser fileChooser = new JFileChooser(dir);
         fileChooser.setSelectedFile(source);
-        int ret_val = fileChooser.showSaveDialog(browser);
+        int ret_val = fileChooser.showSaveDialog(parent);
         if (ret_val == JFileChooser.APPROVE_OPTION) {
             File file = fileChooser.getSelectedFile();
-            if (file.exists() && !(JOptionPane.showConfirmDialog(browser, "file exists.Replace") == JOptionPane.YES_OPTION)) {
+            if (file.exists() && !(JOptionPane.showConfirmDialog(parent, "file exists.Replace") == JOptionPane.YES_OPTION)) {
                 throw new RuntimeException("file exists");
             }
-            try (FileOutputStream out = new FileOutputStream(fileChooser.getSelectedFile())) {
-                browser.graph.write(out);
+            file = fileChooser.getSelectedFile();
+            try (FileOutputStream out = new FileOutputStream(file)) {
+                listener.onGraphSave(new FileManagerEvent(this,file));
+//                browser.graph.write(out);
                 source = file;
             }
         }
@@ -106,10 +150,9 @@ public class FileManager implements CommandManager.CommandListener {
     public void save_as() {
     }
 
+    GraphAdapter2 adapter2;
     public void create() {
-        source = null;
-        browser.setGraph(new Graph());
-        browser.reset();
+        listener.onGraphNew(new FileManagerEvent(this));
     }
     
 }

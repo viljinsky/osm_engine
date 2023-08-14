@@ -120,9 +120,9 @@ public class OSMParser extends DefaultHandler {
 
         if (qName.equals("member")) {
             Member member = new Member();
-            member.ref = Long.parseLong(attributes.getValue("ref"));
             member.type = attributes.getValue("type");
             member.role = attributes.getValue("role");
+            member.ref = Long.parseLong(attributes.getValue("ref"));
             relation.add(member);
         }
 
