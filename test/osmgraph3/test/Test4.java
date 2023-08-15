@@ -15,7 +15,7 @@ import osmgraph3.controls.GraphElementList;
 import osmgraph3.controls.GraphManager;
 import osmgraph3.controls.GraphRenderer;
 import osmgraph3.controls.SideBar;
-import osmgraph3.controls.TagList;
+import osmgraph3.controls.TagValues;
 import osmgraph3.graph.Graph;
 import osmgraph3.graph.Member;
 import osmgraph3.graph.Node;
@@ -133,7 +133,7 @@ public class Test4 extends Base implements CommandManager.CommandListener {
 
     Adapter3 adapter = new Adapter3();
 
-    TagList tagList = new TagList();
+    TagValues tagList = new TagValues();
     GraphElementList relations = new GraphElementList(tagList);
     GraphElementList nodes = new GraphElementList(tagList);
     GraphElementList ways = new GraphElementList(tagList);

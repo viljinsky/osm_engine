@@ -14,7 +14,6 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import org.xml.sax.Attributes;
@@ -119,10 +118,10 @@ public class OSMParser extends DefaultHandler {
         }
 
         if (qName.equals("member")) {
-            Member member = new Member();
-            member.type = attributes.getValue("type");
-            member.role = attributes.getValue("role");
-            member.ref = Long.parseLong(attributes.getValue("ref"));
+            String type = attributes.getValue("type");
+            String role = attributes.getValue("role");
+            Long ref = Long.parseLong(attributes.getValue("ref"));
+            Member member = new Member(ref,type,role);
             relation.add(member);
         }
 
@@ -241,7 +240,7 @@ public class OSMParser extends DefaultHandler {
     }
     
     public static void main(String[] args) throws Exception {        
-        File source = new File("C:\\Users\\viljinsky\\Desktop", "test.osm");
+        File source = new File(System.getProperty("user.home")+"/osm", "test.osm");
         OSMParser handelr = new OSMParser(source);        
         
         try(OutputStream out = new OutputStream() {

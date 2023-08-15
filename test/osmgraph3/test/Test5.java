@@ -14,7 +14,7 @@ import osmgraph3.controls.GraphElementList;
 import osmgraph3.controls.GraphManager;
 import osmgraph3.controls.SideBar;
 import osmgraph3.controls.StatusBar;
-import osmgraph3.controls.TagList;
+import osmgraph3.controls.TagValues;
 
 /**
  *
@@ -57,7 +57,7 @@ public class Test5 extends Base implements FileManager.FileManagerListener{
     
     Browser browser = new Browser();
     StatusBar statusBar = new StatusBar();
-    TagList tagList = new TagList();
+    TagValues tagList = new TagValues();
     GraphElementList nodes = new GraphElementList(tagList);
     GraphElementList ways = new GraphElementList(tagList);
     GraphElementList relations = new GraphElementList(tagList);

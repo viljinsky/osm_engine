@@ -13,7 +13,7 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 import osmgraph3.graph.GraphElement;
 
-public class TagList extends JComponent implements CommandManager.CommandListener {
+public class TagValues extends JComponent implements CommandManager.CommandListener {
 
     public static final String ADD = "add";
     public static final String DELETE = "delete";
@@ -49,7 +49,7 @@ public class TagList extends JComponent implements CommandManager.CommandListene
 
     JTable table = new JTable(model);
 
-    public TagList() {
+    public TagValues() {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         add(new JScrollPane(table));
     }

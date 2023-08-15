@@ -14,19 +14,17 @@ import osmgraph3.graph.GraphElement;
  *
  * @author viljinsky
  */
-public class GraphElementList extends JList implements ListSelectionListener{
-    
+public class GraphElementList extends JList implements ListSelectionListener {
+
     List list = new ArrayList<>();
-    TagList tagList = null;
+    TagValues tagList = null;
 
     @Override
     public void valueChanged(ListSelectionEvent e) {
-        if (tagList!=null){
-            tagList.setValues((GraphElement)getSelectedValue());
+        if (tagList != null) {
+            tagList.setValues((GraphElement) getSelectedValue());
         }
     }
-    
-    
 
     class MyModel extends DefaultListModel {
 
@@ -46,7 +44,7 @@ public class GraphElementList extends JList implements ListSelectionListener{
         this(null);
     }
 
-    public GraphElementList(TagList tagLst) {
+    public GraphElementList(TagValues tagLst) {
         this.tagList = tagLst;
         addListSelectionListener(this);
         setModel(model);
@@ -60,10 +58,10 @@ public class GraphElementList extends JList implements ListSelectionListener{
     public JComponent view() {
         return new JScrollPane(this);
     }
-    
+
     public void add(Object element) {
         list.add(element);
-       
+
     }
 
     public void remove(Object element) {
@@ -73,6 +71,5 @@ public class GraphElementList extends JList implements ListSelectionListener{
     public void clear() {
         list.clear();
     }
-    
-    
+
 }

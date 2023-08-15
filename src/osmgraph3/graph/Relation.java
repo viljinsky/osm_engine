@@ -42,10 +42,7 @@ public class Relation extends ArrayList<Member> implements GraphElement {
     }
     
     public boolean add(Long ref,String type,String role){
-        Member member = new Member();
-        member.ref = ref;
-        member.type = type;
-        member.role = role;
+        Member member = new Member(ref,type,role);
         return add(member);
     }
 

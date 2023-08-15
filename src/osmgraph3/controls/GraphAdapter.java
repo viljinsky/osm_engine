@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package osmgraph3.controls;
 
 import java.awt.Point;
@@ -85,7 +81,7 @@ public class GraphAdapter extends MouseAdapter {
         if (e.isControlDown()) return ;
         if (e.getPoint() != start) {
             int dx = start.x - e.getX();
-            int dy = start.y - e.getY();
+            int dy = - start.y + e.getY();
             browser.move(dx / browser.zoom, dy / browser.zoom);
         }
         start = e.getPoint();

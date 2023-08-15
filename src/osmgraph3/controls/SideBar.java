@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package osmgraph3.controls;
 
 import java.awt.Container;
@@ -22,5 +18,7 @@ public class SideBar extends Container {
             add(c);
         }
     }
+    
+    
     
 }

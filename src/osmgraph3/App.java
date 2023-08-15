@@ -1,6 +1,6 @@
 package osmgraph3;
 
-import osmgraph3.controls.TagList;
+import osmgraph3.controls.TagValues;
 import osmgraph3.graph.Way;
 import osmgraph3.graph.Node;
 import java.awt.BorderLayout;
@@ -44,7 +44,7 @@ class App extends Base implements CommandManager.CommandListener, FileManager.Fi
     
     CommandManager commandManager = new CommandManager(this, ADD, EDIT, DELETE, null, ZOOM_IN, ZOOM_OUT, null, WEST, NOTH, EAST, SOUTH, null, RESET, CLEAR);
     Browser browser = new Browser();
-    TagList tagEditor = new TagList();
+    TagValues tagEditor = new TagValues();
     GraphElementList nodeList = new GraphElementList(tagEditor);
     GraphElementList wayList = new GraphElementList(tagEditor);
     GraphElementList relationList = new GraphElementList(tagEditor);

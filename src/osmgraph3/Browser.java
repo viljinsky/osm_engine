@@ -59,7 +59,9 @@ public class Browser extends JComponent implements ChangeListener {
     }
 
     public double yToLat(int y) {
-        return minlat + y / zoom;
+//        return minlat + y / zoom;
+        return maxlat - y /zoom;
+        
     }
 
     public int lonToX(double lon) {
@@ -67,7 +69,8 @@ public class Browser extends JComponent implements ChangeListener {
     }
 
     public int latToY(double lat) {
-        return (int) (lat * zoom - minlat * zoom);
+//        return (int) (lat * zoom - minlat * zoom);
+        return (int) (maxlat * zoom - lat * zoom );
     }
 
     public Node node(Point point) {
@@ -96,7 +99,7 @@ public class Browser extends JComponent implements ChangeListener {
     public Rectangle wayRectangle(Way way) {
         Bound bound = way.bound();
         int x = lonToX(bound.minlon);
-        int y = latToY(bound.minlat);
+        int y = latToY(bound.maxlat);
         int w = (int) ((bound.maxlon - bound.minlon) * zoom);
         int h = (int) ((bound.maxlat - bound.minlat) * zoom);
         return new Rectangle(x, y, w, h);

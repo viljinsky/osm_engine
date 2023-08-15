@@ -20,16 +20,12 @@ public class GraphRenderer {
     Color boundColor = Color.LIGHT_GRAY;
     Color nameColor = Color.GRAY;
 
-//    Browser browser;
-
-//    public GraphRenderer(Browser browser) {
-//        this.browser = browser;
-//    }
-
     public void render(Browser browser,Graph graph, Graphics g, boolean selected) {
 
+        Rectangle r;
+        
         for (Node node : graph.nodes) {
-            Rectangle r = browser.nodeRectangle(node);
+            r = browser.nodeRectangle(node);
             g.setColor(nodeColor);
             g.drawRect(r.x, r.y, r.width, r.height);
             if (node.containsKey("name")){
@@ -38,15 +34,14 @@ public class GraphRenderer {
             }
         }
 
-        Rectangle r;
 
         for (Way way : graph.ways) {
 
 
             g.setColor(nodeColor);
             for (Node node : way) {
-                Rectangle r2 = browser.nodeRectangle(node);
-                g.drawRect(r2.x, r2.y, r2.width, r2.height);
+                r = browser.nodeRectangle(node);
+                g.drawRect(r.x, r.y, r.width, r.height);
             }
 
             g.setColor(boundColor);
