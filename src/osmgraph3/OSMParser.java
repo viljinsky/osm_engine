@@ -234,14 +234,10 @@ public class OSMParser extends DefaultHandler {
 
     }
 
-    public OSMParser(File source) {
+    public OSMParser(File source) throws Exception {
         SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
-        try {
-            SAXParser saxParser = saxParserFactory.newSAXParser();
-            saxParser.parse(source, this);
-        } catch (ParserConfigurationException | SAXException | IOException e) {
-            e.printStackTrace();
-        }
+        SAXParser saxParser = saxParserFactory.newSAXParser();
+        saxParser.parse(source, this);
     }
     
     public static void main(String[] args) throws Exception {        

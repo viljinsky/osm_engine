@@ -15,6 +15,8 @@ import javax.swing.JOptionPane;
  * @author viljinsky
  */
 public class Base extends Container implements WindowListener{
+    
+    String appName = "appName";
 
     JFrame frame;
     
@@ -65,7 +67,7 @@ public class Base extends Container implements WindowListener{
     }
     
     public void execute(){
-        frame = new JFrame();
+        frame = new JFrame(appName);
         if (menuBar!=null){
             frame.setJMenuBar(menuBar);
         }
@@ -82,10 +84,10 @@ public class Base extends Container implements WindowListener{
     }
     
     public void showMessage(String message){
-        JOptionPane.showMessageDialog(getParent(), message,"Information",JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(getParent(), message,appName+" Information",JOptionPane.INFORMATION_MESSAGE);
     }
     
     public void showErrorMessage(String message){
-        JOptionPane.showMessageDialog(getParent(), message,"Error",JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(getParent(), message,appName+" Error",JOptionPane.ERROR_MESSAGE);
     }
 }

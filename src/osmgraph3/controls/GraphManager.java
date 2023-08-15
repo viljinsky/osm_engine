@@ -71,7 +71,8 @@ public class GraphManager implements CommandManager.CommandListener {
 
     public static class Graph2 extends Graph {
 
-        public Graph2() {
+        public Graph2() throws Exception {
+            
             OSMParser parser = new OSMParser(new File("C:\\Users\\viljinsky\\Desktop", "test.osm"));
             nodes = parser.nodes;
             ways = parser.ways;
@@ -106,9 +107,10 @@ public class GraphManager implements CommandManager.CommandListener {
 
     public static class Graph4 extends Graph {
 
-        public Graph4() {
+        public Graph4() throws Exception {
 //        OSMParser parser = new OSMParser(new File("C:\\Users\\viljinsky\\Desktop", "map (2).osm"));
-            OSMParser parser = new OSMParser(new File("C:\\Users\\viljinsky\\Desktop", "test.osm"));
+            String str = System.getProperty("user.home");
+            OSMParser parser = new OSMParser(new File(new File(str+"/osm"), "test.osm"));
             nodes = parser.nodes;
             ways = parser.ways;
             relations = parser.relations;

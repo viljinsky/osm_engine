@@ -28,9 +28,13 @@ public class Test3 extends Container implements FileManager.FileManagerListener{
 
     @Override
     public void onGraphNew(FileManager.FileManagerEvent e) {
+        try{
         Graph g = new Graph();
         browser.setGraph(new GraphManager.Graph4());
         browser.reset();
+        } catch (Exception h){
+            h.printStackTrace();
+        }
     }
 
     @Override

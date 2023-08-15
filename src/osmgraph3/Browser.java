@@ -1,6 +1,5 @@
 package osmgraph3;
 
-import com.sun.scenario.effect.impl.Renderer;
 import java.awt.Color;
 import osmgraph3.graph.Graph;
 import osmgraph3.graph.Way;
@@ -10,7 +9,6 @@ import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.MouseAdapter;
-import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -104,13 +102,12 @@ public class Browser extends JComponent implements ChangeListener {
         return new Rectangle(x, y, w, h);
     }
 
-    public void setGraph(Graph graph) {
-        if (graph != null) {
-            graph.addChangeListener(this);
-        } else {
-            graph.removeChangeListener(this);
+    public void setGraph(Graph g) {
+        if(this.graph!=null){
+            this.graph.removeChangeListener(this);
         }
-        this.graph = graph;
+        g.addChangeListener(this);
+        this.graph = g;
         repaint();
     }
     
@@ -255,7 +252,7 @@ public class Browser extends JComponent implements ChangeListener {
         return statusText() + " " + String.format(Locale.US, "lon : %.3f,lat : %.3f", xToLon(p.x), yToLat(p.y));
     }
 
-    void setBound(Bound bound) {
+    public void setBound(Bound bound) {
         minlon = bound.minlon;
         minlat = bound.maxlat;
         maxlon = bound.maxlon;

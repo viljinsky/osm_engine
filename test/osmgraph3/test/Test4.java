@@ -165,6 +165,8 @@ public class Test4 extends Base implements CommandManager.CommandListener {
     @Override
     public void windowOpened(WindowEvent e) {
 
+        try{
+        
         Graph graph = new GraphManager.Graph4();
         relations.setValues(graph.relations);
         nodes.setValues(graph.nodes);
@@ -197,6 +199,9 @@ public class Test4 extends Base implements CommandManager.CommandListener {
             }
 
         });
+        } catch (Exception h){
+            h.printStackTrace();
+        }
 
     }
 

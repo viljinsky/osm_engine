@@ -16,10 +16,11 @@ import osmgraph3.graph.Graph;
  * @author viljinsky
  */
 public class FileManager implements CommandManager.CommandListener {
-    
+
     Component parent = null;
-    
-    public static class FileManagerEvent extends EventObject{
+
+    public static class FileManagerEvent extends EventObject {
+
         Graph graph;
         File file;
 
@@ -27,12 +28,12 @@ public class FileManager implements CommandManager.CommandListener {
             super(source);
         }
 
-        public FileManagerEvent(Object source,Graph graph) {
+        public FileManagerEvent(Object source, Graph graph) {
             super(source);
             this.graph = graph;
         }
 
-        public FileManagerEvent(Object source,File file) {
+        public FileManagerEvent(Object source, File file) {
             super(source);
             this.file = file;
         }
@@ -44,21 +45,20 @@ public class FileManager implements CommandManager.CommandListener {
         public File getFile() {
             return file;
         }
-             
-        
-        
+
     }
-    
-    public interface FileManagerListener{
+
+    public interface FileManagerListener {
+
         public void onGraphNew(FileManagerEvent e);
+
         public void onGraphOpen(FileManagerEvent e);
+
         public void onGraphSave(FileManagerEvent e);
     }
-    
-    
+
     FileManagerListener listener;
-   
-    
+
     public static final String OPEN = "open";
     public static final String SAVE = "save";
     public static final String NEW = "new";
@@ -104,9 +104,9 @@ public class FileManager implements CommandManager.CommandListener {
     }
     File source;
     String userDir = System.getProperty("user.home");
-    File dir = new File(userDir, "/Desktop");
-    
-    public void onFileOpen(Graph graph){
+    File dir = new File(userDir, "/osm");
+
+    public void onFileOpen(Graph graph) {
     }
 
     public void open() throws Exception {
@@ -114,19 +114,19 @@ public class FileManager implements CommandManager.CommandListener {
         fileChooser.setSelectedFile(source);
         int ret_val = fileChooser.showOpenDialog(parent);
         if (ret_val == JFileChooser.APPROVE_OPTION) {
-            OSMParser p = new OSMParser(fileChooser.getSelectedFile());
-            Graph graph = new Graph();
-            graph.nodes = p.nodes;
-            graph.ways = p.ways;
-            graph.relations = p.relations;
-            
-            listener.onGraphOpen(new FileManagerEvent(this,graph));
-//            onFileOpen(graph);
-//            browser.setGraph(graph);
-//            browser.reset();
-            source = fileChooser.getSelectedFile();
-            dir = fileChooser.getCurrentDirectory();
+            open(fileChooser.getSelectedFile());
         }
+    }
+
+    public void open(File file) throws Exception {
+        OSMParser p = new OSMParser(file);
+        Graph graph = new Graph();
+        graph.nodes = p.nodes;
+        graph.ways = p.ways;
+        graph.relations = p.relations;
+        listener.onGraphOpen(new FileManagerEvent(this, graph));
+        source = file;
+        dir = file.getParentFile();
     }
 
     public void save() throws Exception {
@@ -140,7 +140,7 @@ public class FileManager implements CommandManager.CommandListener {
             }
             file = fileChooser.getSelectedFile();
             try (FileOutputStream out = new FileOutputStream(file)) {
-                listener.onGraphSave(new FileManagerEvent(this,file));
+                listener.onGraphSave(new FileManagerEvent(this, file));
 //                browser.graph.write(out);
                 source = file;
             }
@@ -151,8 +151,9 @@ public class FileManager implements CommandManager.CommandListener {
     }
 
     GraphAdapter2 adapter2;
+
     public void create() {
         listener.onGraphNew(new FileManagerEvent(this));
     }
-    
+
 }
