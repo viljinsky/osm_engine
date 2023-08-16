@@ -37,6 +37,14 @@ public class Relation extends ArrayList<Member> implements GraphElement {
         return tags == null ? new HashSet<>() : tags.keySet();
     }
 
+    @Override
+    public boolean containsKey(Object key) {
+        return tags.containsKey(key);
+    }
+
+    
+    
+    
     public String toString() {
         return String.format("relation %d : %d", id, size());
     }

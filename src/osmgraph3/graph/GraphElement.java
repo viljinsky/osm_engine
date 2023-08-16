@@ -14,6 +14,8 @@ public interface GraphElement {
 
     public Set<String> keySet();
     
+    public boolean containsKey(Object key);
+    
     public Node center();
 
 }

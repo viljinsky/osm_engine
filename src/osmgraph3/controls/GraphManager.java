@@ -73,7 +73,7 @@ public class GraphManager implements CommandManager.CommandListener {
 
         public Graph2() throws Exception {
             
-            OSMParser parser = new OSMParser(new File("C:\\Users\\viljinsky\\Desktop", "test.osm"));
+            OSMParser parser = new OSMParser(new File(System.getProperty("user.home")+"/osm", "test.osm"));
             nodes = parser.nodes;
             ways = parser.ways;
             relations = parser.relations;

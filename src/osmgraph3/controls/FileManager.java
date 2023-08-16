@@ -38,6 +38,14 @@ public class FileManager implements CommandManager.CommandListener {
             this.file = file;
         }
 
+        public FileManagerEvent( Object source,Graph graph, File file) {
+            super(source);
+            this.graph = graph;
+            this.file = file;
+        }
+        
+        
+
         public Graph getGraph() {
             return graph;
         }
@@ -124,7 +132,7 @@ public class FileManager implements CommandManager.CommandListener {
         graph.nodes = p.nodes;
         graph.ways = p.ways;
         graph.relations = p.relations;
-        listener.onGraphOpen(new FileManagerEvent(this, graph));
+        listener.onGraphOpen(new FileManagerEvent(this, graph,file));
         source = file;
         dir = file.getParentFile();
     }

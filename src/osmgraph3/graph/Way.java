@@ -21,7 +21,8 @@ public class Way extends ArrayList<Node> implements GraphElement {
         addAll(Arrays.asList(nodes));
     }
     
-    public boolean containsKey(String key){
+    @Override
+    public boolean containsKey(Object key){
         return tags!=null && tags.containsKey(key);
     }
     

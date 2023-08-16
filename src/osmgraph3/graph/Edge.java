@@ -39,6 +39,12 @@ public class Edge implements GraphElement{
     public Set<String> keySet() {
         return new HashSet<>();
     }
+
+    @Override
+    public boolean containsKey(Object key) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+    
     
     
     

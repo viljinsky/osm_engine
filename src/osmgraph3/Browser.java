@@ -37,7 +37,7 @@ public class Browser extends JComponent implements ChangeListener {
         return renderer;
     }
     
-    public void setAdapter(MouseAdapter adapter){
+    public void setAdapter(MouseAdapter adapter){       
         addMouseListener(adapter);
         addMouseMotionListener(adapter);
         addMouseWheelListener(adapter);
