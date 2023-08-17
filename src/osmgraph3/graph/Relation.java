@@ -9,13 +9,14 @@ import java.util.Set;
  * @author viljinsky
  */
 public class Relation extends ArrayList<Member> implements GraphElement {
+    
 
     public Tags tags;
     public Long id;
 
     @Override
     public Node center() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        throw new UnsupportedOperationException("Not supported yet."); 
     }
     
     
@@ -42,9 +43,6 @@ public class Relation extends ArrayList<Member> implements GraphElement {
         return tags.containsKey(key);
     }
 
-    
-    
-    
     public String toString() {
         return String.format("relation %d : %d", id, size());
     }

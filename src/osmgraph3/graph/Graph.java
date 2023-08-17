@@ -1,32 +1,39 @@
 package osmgraph3.graph;
 
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import osmgraph3.OSMWriter;
 
 /**
  *
  * @author viljinsky
  */
 public class Graph implements GraphElement {
+    
+    public static final String NODE = "node";
+    public static final String WAY = "way";
+    public static final String RELATION = "relation";
+
+    public Tags tags;
+    public List<Node> nodes = new ArrayList<>();
+    public List<Way> ways = new ArrayList<>();
+    public List<Relation> relations = new ArrayList<>();
+    
 
     @Override
     public Node center() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public boolean containsKey(Object key) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        throw new UnsupportedOperationException("Not supported yet.");
     }
-    
-    
 
     @Override
     public void put(String key, Object value) {
@@ -49,11 +56,6 @@ public class Graph implements GraphElement {
         return tags == null ? new HashSet<>() : tags.keySet();
     }
 
-
-    public Tags tags;
-    public List<Node> nodes = new ArrayList<>();
-    public List<Way> ways = new ArrayList<>();
-    public List<Relation> relations = new ArrayList<>();
 
     public Node nodeById(Long id) {
         for (Node node : nodes) {
@@ -164,39 +166,41 @@ public class Graph implements GraphElement {
     }
 
 public void write(OutputStream out) throws Exception {
+    
+    OSMWriter.write(this, out);
 
-        try (OutputStreamWriter writer = new OutputStreamWriter(out, "utf-8");) {
-
-            writer.write("<osm>\n");
-
-            for (Node node : nodes) {
-                writer.write(String.format(Locale.US,"<node id='%d' lon='%8.6f' lat = '%8.6f'/>\n", node.id, node.lon, node.lat));
-            }
-            for (Way way : ways) {
-                writer.write(String.format("<way id='%d'>\n", way.id));
-                for (Node node : way) {
-                    writer.write(String.format("\t<nd ref = '%d' />\n", node.id));
-                }
-                if (way.tags != null) {
-                    for (String k : way.keySet()) {
-                        writer.write(String.format("\t<tag k='%s' v='%s'/>\n", k, way.get(k)));
-                    }
-                }
-                writer.write("</way>\n");
-            }
-
-            writer.write("</osm>\n");
-        }
+//        try (OutputStreamWriter writer = new OutputStreamWriter(out, "utf-8");) {
+//
+//            writer.write("<?xml version='1.0' encoding='UTF-8'?>\n<osm version='0.6' generator='JOSM'>\n");
+//
+//            for (Node node : nodes) {
+//                writer.write(String.format(Locale.US,"<node id='%d' lon='%8.6f' lat = '%8.6f' visible='true' version='30'/>\n", node.id, node.lon, node.lat));
+//            }
+//            for (Way way : ways) {
+//                writer.write(String.format("<way id='%d' visible='true' version='30'>\n", way.id));
+//                for (Node node : way) {
+//                    writer.write(String.format("\t<nd ref = '%d' />\n", node.id));
+//                }
+//                if (way.tags != null) {
+//                    for (String k : way.keySet()) {
+//                        writer.write(String.format("\t<tag k='%s' v='%s'/>\n", k, way.get(k)));
+//                    }
+//                }
+//                writer.write("</way>\n");
+//            }
+//            
+//            for(Relation relation:relations){
+//                writer.write(String.format("<relation id='%d' visible='true' version='30'>\n", relation.id));
+//                for(Member m: relation){
+//                    writer.write(String.format("\t<member ref='%d' type='%s' role='%s'/>\n", m.ref,m.type,m.role));
+//                }
+//                writer.write("</relation>\n");
+//            }
+//
+//            writer.write("</osm>\n");
+//        }
     }
 
-//    Relation relationById(long id) {
-//        for (Relation r : relations) {
-//            if (r.id == id) {
-//                return r;
-//            }
-//        }
-//        return null;
-//    }
 
 }
 

@@ -1,5 +1,6 @@
-package osmgraph3.controls;
+package osmgraph3;
 
+import osmgraph3.CommandBar;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import javax.swing.AbstractAction;

@@ -1,5 +1,6 @@
 package osmgraph3.controls;
 
+import osmgraph3.CommandManager;
 import java.awt.Component;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -38,13 +39,11 @@ public class FileManager implements CommandManager.CommandListener {
             this.file = file;
         }
 
-        public FileManagerEvent( Object source,Graph graph, File file) {
+        public FileManagerEvent(Object source, Graph graph, File file) {
             super(source);
             this.graph = graph;
             this.file = file;
         }
-        
-        
 
         public Graph getGraph() {
             return graph;
@@ -126,13 +125,18 @@ public class FileManager implements CommandManager.CommandListener {
         }
     }
 
+    public File lastOpennedFile() {
+        File file = new File(System.getProperty("user.home") + "/osm", "test2.osm");
+        return file.exists() ? file : null;
+    }
+
     public void open(File file) throws Exception {
         OSMParser p = new OSMParser(file);
         Graph graph = new Graph();
         graph.nodes = p.nodes;
         graph.ways = p.ways;
         graph.relations = p.relations;
-        listener.onGraphOpen(new FileManagerEvent(this, graph,file));
+        listener.onGraphOpen(new FileManagerEvent(this, graph, file));
         source = file;
         dir = file.getParentFile();
     }

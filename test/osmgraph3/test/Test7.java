@@ -4,48 +4,52 @@
  */
 package osmgraph3.test;
 
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.font.FontRenderContext;
-import java.awt.font.GlyphVector;
-import java.awt.geom.Line2D;
-import java.awt.geom.Path2D;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
-import osmgraph3.controls.Base;
+import java.io.File;
+import osmgraph3.OSMParser;
+import osmgraph3.controls.FileManager;
+import osmgraph3.graph.Graph;
+import osmgraph3.graph.Member;
+import osmgraph3.graph.Relation;
+import osmgraph3.graph.Way;
+
 
 /**
  *
  * @author viljinsky
  */
-public class Test7 extends Base{
-
-    @Override
-    public void paint(Graphics g) {
-        super.paint(g);
-        
-        Graphics2D g2 = (Graphics2D)g;
-        
-        String s = "09202980298029029029";
-        Font f = getFont();
-        FontRenderContext frc = g2.getFontRenderContext();
-        
-        GlyphVector gv =  f.createGlyphVector(frc, s);
-        
-       
-        
-        g2.drawGlyphVector(gv, 10, 10);
-        
-        
-        
-        
-    }
+public class Test7 {
     
     
     
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception{
         new Test7().execute();
+    }
+
+    private void execute() throws Exception{
+//        FileManager fileManager = new FileManager(null);
+        OSMParser parser = new OSMParser(new File(System.getProperty("user.home") +"/osm","test.osm"));
+//        graph.nodes = parser.nodes;
+//        graph.ways = parser.ways;
+//        graph.relations = parser.relations;
+
+        for(Relation r:parser.relations){
+            System.out.println(r);
+            for(Member m:r){
+                System.out.println("-->"+m);
+                
+                if (m.type.equals(Graph.WAY)){
+                    for(Way way: parser.ways){
+                        if (way.id.equals(m.ref)){
+                            System.out.println("OK");
+                            break;
+                        }
+                    }
+                }
+                
+                
+            }
+        }
+        
     }
     
 }

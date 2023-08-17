@@ -3,7 +3,6 @@ package osmgraph3.controls;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Rectangle;
-import osmgraph3.Browser;
 import osmgraph3.graph.Edge;
 import osmgraph3.graph.Graph;
 import osmgraph3.graph.Node;
@@ -66,8 +65,8 @@ public class GraphRenderer {
                 g.setColor(nodeColor);
                 Node center = way.center();
                 r = browser.nodeRectangle(center);
-                g.drawLine(r.x - 3, r.y - 3, r.x + 3, r.y + 3);
-                g.drawLine(r.x - 3, r.y + 3, r.x + 3, r.y - 3);
+                g.drawLine(r.x,r.y,r.x+r.width,r.y+r.height);
+                g.drawLine(r.x,r.y+r.height,r.x+r.width,r.y);
                 if (way.containsKey("name")){
                     g.setColor(Color.RED);
                     g.drawString((String)way.get("name"), r.x, r.y-7);

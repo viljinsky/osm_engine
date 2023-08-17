@@ -7,14 +7,14 @@ package osmgraph3.test;
 import osmgraph3.controls.FileManager;
 import java.awt.BorderLayout;
 import java.awt.event.WindowEvent;
-import osmgraph3.Browser;
-import osmgraph3.controls.Base;
+import osmgraph3.controls.Browser;
+import osmgraph3.Base;
 import osmgraph3.controls.GraphElementList;
 import osmgraph3.controls.GraphAdapter;
 import osmgraph3.controls.GraphManager;
 import osmgraph3.controls.GraphAdapter2;
-import osmgraph3.controls.SideBar;
-import osmgraph3.controls.StatusBar;
+import osmgraph3.SideBar;
+import osmgraph3.StatusBar;
 import osmgraph3.graph.Graph;
 
 /**

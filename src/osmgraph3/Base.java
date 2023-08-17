@@ -1,4 +1,4 @@
-package osmgraph3.controls;
+package osmgraph3;
 
 import java.awt.BorderLayout;
 import java.awt.Container;

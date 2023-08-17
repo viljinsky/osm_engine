@@ -6,7 +6,6 @@ package osmgraph3.controls;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import osmgraph3.Browser;
 import osmgraph3.graph.Node;
 import osmgraph3.graph.Way;
 

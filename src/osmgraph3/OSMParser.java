@@ -19,6 +19,7 @@ import javax.xml.parsers.SAXParserFactory;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
+import osmgraph3.graph.Graph;
 
 public class OSMParser extends DefaultHandler {
 
@@ -29,25 +30,27 @@ public class OSMParser extends DefaultHandler {
     Node node;
     Way way;
     Relation relation;
+    
     public double minlon, minlat, maxlon, maxlat;
     
     public double[] bound(){
         return new double[]{minlon,minlat,maxlon,maxlat};
     }
 
-    Node nodeById(long id) {
-        for (Node node : nodes) {
+    Node nodeById(long id) {        
+//        return nodes.stream().filter(nd->{return nd.id == id;}).findFirst().orElse(null);
+       for (Node node : nodes) {
             if (node.id == id) {
                 return node;
             }
-        }
-        return null;
+       }
+       return null;
     }
 
     @Override
     public void endElement(String uri, String localName, String qName) throws SAXException {
 
-        if (qName.equals("node")) {
+        if (qName.equals(Graph.NODE)) {
 
             if (node != null) {
                 nodes.add(node);
@@ -55,14 +58,14 @@ public class OSMParser extends DefaultHandler {
             }
         }
 
-        if (qName.equals("way")) {
+        if (qName.equals(Graph.WAY)) {
             if (way != null) {
                 ways.add(way);
                 way = null;
             }
         }
 
-        if (qName.equals("relation")) {
+        if (qName.equals(Graph.RELATION)) {
             if (relation != null) {
                 relations.add(relation);
                 relation = null;
@@ -71,6 +74,11 @@ public class OSMParser extends DefaultHandler {
 
     }
 
+    
+    String decodeValue(String value){
+        return value.replaceAll("&amp;", "&").replaceAll("&apos;", "'").replaceAll("&qt;", ">").replaceAll("&lt;", "<");
+    }
+    
     @Override
     public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
 
@@ -102,13 +110,13 @@ public class OSMParser extends DefaultHandler {
 
         if (qName.equals("tag")) {
             if (node != null) {
-                node.put(attributes.getValue("k"), attributes.getValue("v"));
+                node.put(attributes.getValue("k"), decodeValue( attributes.getValue("v")));
             }
             if (way != null) {
-                way.put(attributes.getValue("k"), attributes.getValue("v"));
+                way.put(attributes.getValue("k"), decodeValue(attributes.getValue("v")));
             }
             if(relation!=null){
-                relation.put(attributes.getValue("k"), attributes.getValue("v"));
+                relation.put(attributes.getValue("k"),decodeValue(attributes.getValue("v")));
             }
         }
 
@@ -234,9 +242,13 @@ public class OSMParser extends DefaultHandler {
     }
 
     public OSMParser(File source) throws Exception {
+        long t = System.currentTimeMillis();
+        System.out.print("start....");
         SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
         SAXParser saxParser = saxParserFactory.newSAXParser();
         saxParser.parse(source, this);
+        System.out.println("OK ("+(System.currentTimeMillis()-t)+"ms)");
+        
     }
     
     public static void main(String[] args) throws Exception {        

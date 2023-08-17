@@ -1,4 +1,4 @@
-package osmgraph3;
+package osmgraph3.controls;
 
 import java.awt.Color;
 import osmgraph3.graph.Graph;
@@ -32,6 +32,10 @@ public class Browser extends JComponent implements ChangeListener {
     public Graph graph;
 
     GraphRenderer renderer = new GraphRenderer();
+    
+    public void setDefaultRenderer(GraphRenderer renderer){
+        this.renderer = renderer;
+    }
     
     protected GraphRenderer getGraphRenedere(Graph graph){
         return renderer;

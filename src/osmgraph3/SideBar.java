@@ -1,4 +1,4 @@
-package osmgraph3.controls;
+package osmgraph3;
 
 import java.awt.Container;
 import java.awt.Dimension;

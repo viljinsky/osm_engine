@@ -1,5 +1,6 @@
 package osmgraph3;
 
+import osmgraph3.controls.Browser;
 import osmgraph3.controls.TagValues;
 import osmgraph3.graph.Way;
 import osmgraph3.graph.Node;
@@ -9,17 +10,17 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import javax.swing.JComponent;
 import javax.swing.JSplitPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import osmgraph3.controls.Base;
-import osmgraph3.controls.CommandManager;
+import osmgraph3.controls.BuildingRenderer;
 import osmgraph3.controls.FileManager;
 import osmgraph3.controls.GraphElementList;
 import osmgraph3.controls.GraphAdapter;
-import osmgraph3.controls.SideBar;
-import osmgraph3.controls.StatusBar;
+import osmgraph3.controls.GraphRenderer;
 import osmgraph3.graph.Graph;
 import osmgraph3.graph.GraphElement;
 
@@ -41,8 +42,10 @@ class App extends Base implements CommandManager.CommandListener, FileManager.Fi
     public static final String ZOOM_IN = "+";
     public static final String ZOOM_OUT = "-";
     public static final String RESET = "Rst";
+    public static final String REND1 = "rend1";
+    public static final String REND2 = "rend2";
     
-    CommandManager commandManager = new CommandManager(this, ADD, EDIT, DELETE, null, ZOOM_IN, ZOOM_OUT, null, WEST, NOTH, EAST, SOUTH, null, RESET, CLEAR);
+    CommandManager commandManager = new CommandManager(this, ADD, EDIT, DELETE, null, ZOOM_IN, ZOOM_OUT, null, WEST, NOTH, EAST, SOUTH, null, RESET, CLEAR,null,REND1,REND2);
     Browser browser = new Browser();
     TagValues tagEditor = new TagValues();
     GraphElementList nodeList = new GraphElementList(tagEditor);
@@ -65,7 +68,11 @@ class App extends Base implements CommandManager.CommandListener, FileManager.Fi
     
     @Override
     public void onGraphSave(FileManager.FileManagerEvent e) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        try(OutputStream out = new FileOutputStream(e.getFile())){
+            browser.graph.write(out);
+        } catch (Exception h){
+            h.printStackTrace();
+        }
     }
     
     @Override
@@ -82,6 +89,14 @@ class App extends Base implements CommandManager.CommandListener, FileManager.Fi
     public void doCommand(String command) {
         try {
             switch (command) {
+                case REND1:
+                    browser.setDefaultRenderer(new GraphRenderer());
+                    browser.repaint();
+                    break;
+                case REND2:
+                    browser.setDefaultRenderer(new BuildingRenderer());
+                    browser.repaint();
+                    break;
                 case RESET:
                     browser.reset();
                     break;
@@ -144,6 +159,8 @@ class App extends Base implements CommandManager.CommandListener, FileManager.Fi
     }
     
     public App() {
+        
+      //  browser.setDefaultRenderer(new BuildingRenderer());
         
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, browser, sideBar);
         splitPane.setResizeWeight(1.0);

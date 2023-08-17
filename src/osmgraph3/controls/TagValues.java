@@ -4,6 +4,7 @@
  */
 package osmgraph3.controls;
 
+import osmgraph3.CommandManager;
 import java.awt.BorderLayout;
 import javax.swing.BoxLayout;
 import javax.swing.JComponent;

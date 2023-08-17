@@ -4,14 +4,13 @@
  */
 package osmgraph3.controls;
 
-import java.awt.Color;
+import osmgraph3.CommandManager;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import javax.swing.JComponent;
 import javax.swing.JMenu;
-import osmgraph3.Browser;
 import osmgraph3.OSMParser;
 import osmgraph3.graph.Graph;
 import osmgraph3.graph.Relation;

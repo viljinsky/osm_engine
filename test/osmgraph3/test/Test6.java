@@ -4,24 +4,24 @@
  */
 package osmgraph3.test;
 
+import osmgraph3.controls.BuildingRenderer;
 import java.awt.BorderLayout;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Set;
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import osmgraph3.Browser;
-import osmgraph3.controls.Base;
+import osmgraph3.controls.Browser;
+import osmgraph3.Base;
 import osmgraph3.controls.FileManager;
 import osmgraph3.controls.GraphAdapter;
-import osmgraph3.controls.SideBar;
-import osmgraph3.controls.StatusBar;
+import osmgraph3.SideBar;
+import osmgraph3.StatusBar;
 import osmgraph3.controls.TagValues;
 import osmgraph3.graph.Graph;
 import osmgraph3.graph.GraphElement;
@@ -52,23 +52,24 @@ class GraphFilter extends Graph {
 
 }
 
+
 class ElementListModel extends DefaultListModel<GraphElement> {
 
-    public ElementListModel(Graph source,String key) {
+    public ElementListModel(Graph source, String key) {
 
         for (Node node : source.nodes) {
-            if(node.containsKey(key)){
+            if (node.containsKey(key)) {
                 addElement(node);
             }
         }
         for (Way way : source.ways) {
-            if(way.containsKey(key)){
+            if (way.containsKey(key)) {
                 addElement(way);
             }
         }
         for (Relation r : source.relations) {
-            if(r.containsKey(key)){
-            addElement(r);
+            if (r.containsKey(key)) {
+                addElement(r);
             }
         }
 
@@ -142,11 +143,11 @@ public class Test6 extends Base implements ListSelectionListener, FileManager.Fi
     public Graph filter(Graph source, String key) {
 
         Graph result = new GraphFilter(source, key);
-        
-        DefaultListModel<GraphElement> m = new ElementListModel(result,key);
-        for(int i=0;i<m.size();i++){
-            if (!m.get(i).containsKey(key)){
-                System.err.println( m.get(i));
+
+        DefaultListModel<GraphElement> m = new ElementListModel(result, key);
+        for (int i = 0; i < m.size(); i++) {
+            if (!m.get(i).containsKey(key)) {
+                System.err.println(m.get(i));
             }
         }
 
@@ -167,8 +168,8 @@ public class Test6 extends Base implements ListSelectionListener, FileManager.Fi
     @Override
     public void windowOpened(WindowEvent e) {
 
-        File file = new File(System.getProperty("user.home") + "/osm", "test.osm");
-        try {
+        File file = fileManager.lastOpennedFile();
+        if (file != null) try {
             fileManager.open(file);
         } catch (Exception h) {
             System.err.println(h.getMessage());
@@ -192,6 +193,10 @@ public class Test6 extends Base implements ListSelectionListener, FileManager.Fi
                 GraphElement el = elements.getSelectedValue();
                 tagValues.setValues(el);
             }
+        });
+        browser.setDefaultRenderer(new BuildingRenderer());
+        browser.addChangeListener(e->{
+            setStatusText(browser.statusText());
         });
 
     }
