@@ -17,6 +17,7 @@ import osmgraph3.graph.Way;
 public class GraphAdapter extends MouseAdapter {
     
     Point start;
+    
     Browser browser;
 
     public void over(GraphElement e) {
@@ -25,9 +26,20 @@ public class GraphAdapter extends MouseAdapter {
     public void click(GraphElement e){
     }
 
-    public GraphAdapter(Browser Browser) {
-        this.browser = Browser;
-        browser.setAdapter(this);
+    public void setBrowser(Browser browser){
+        this.browser = browser;
+        browser.addMouseListener(this);
+        browser.addMouseMotionListener(this);
+        browser.addMouseWheelListener(this);
+    }
+    
+    public void removeBrowser(){
+        if (browser!=null){
+            browser.removeMouseListener(this);
+            browser.removeMouseMotionListener(this);
+            browser.removeMouseWheelListener(this);
+            browser = null;
+        }
     }
 
     @Override

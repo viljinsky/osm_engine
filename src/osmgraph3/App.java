@@ -174,7 +174,7 @@ class App extends Base implements CommandManager.CommandListener, FileManager.Fi
         
         browser.addChangeListener(this);
         
-        GraphAdapter ma = new GraphAdapter(browser) {
+        GraphAdapter adapter = new GraphAdapter() {
             @Override
             public void over(GraphElement e) {
                 statusBar.setStatusText(e.toString());
@@ -195,6 +195,7 @@ class App extends Base implements CommandManager.CommandListener, FileManager.Fi
             }
             
         };
+        adapter.setBrowser(browser);
     }
     
     public static void main(String[] args) {

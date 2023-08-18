@@ -38,6 +38,7 @@ public class GraphElementList extends JList implements ListSelectionListener {
             return list.get(index);
         }
     }
+    
     MyModel model = new MyModel();
 
     public GraphElementList() {
@@ -60,12 +61,17 @@ public class GraphElementList extends JList implements ListSelectionListener {
     }
 
     public void add(Object element) {
-        list.add(element);
-
+//        list.add(element);
+        model = new MyModel();
+        setModel(model);
+        setSelectedValue(element, true);
+        
     }
 
     public void remove(Object element) {
-        list.remove(element);
+//        list.remove(element);
+        model = new MyModel();
+        setModel(model);
     }
 
     public void clear() {

@@ -1,62 +1,108 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 package osmgraph3.test;
 
+import osmgraph3.controls.BuildingRenderer;
 import java.awt.BorderLayout;
-import java.awt.Graphics;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import javax.swing.DefaultListModel;
+import javax.swing.JList;
+import javax.swing.JScrollPane;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import osmgraph3.controls.Browser;
 import osmgraph3.Base;
-import osmgraph3.CommandManager;
+import osmgraph3.controls.FileManager;
 import osmgraph3.controls.GraphAdapter;
-import osmgraph3.controls.GraphElementList;
-import osmgraph3.controls.GraphManager;
-import osmgraph3.controls.GraphRenderer;
 import osmgraph3.SideBar;
+import osmgraph3.StatusBar;
 import osmgraph3.controls.TagValues;
 import osmgraph3.graph.Graph;
-import osmgraph3.graph.Member;
+import osmgraph3.graph.GraphElement;
 import osmgraph3.graph.Node;
 import osmgraph3.graph.Relation;
 import osmgraph3.graph.Way;
 
-class TmpWindow extends JPanel {
-    
-    class GraphRenderer2 extends GraphRenderer{
-        
-        @Override
-        public void render(Browser browser,Graph graph, Graphics g, boolean selected) {
+class GraphFilter extends Graph {
+
+    public GraphFilter(Graph source, String tagName) {
+        for (Node node : source.nodes) {
+            if (node.containsKey(tagName)) {
+                add(node);
+            }
         }
-        
-        
-    }
-
-    Browser browser = new Browser();
-
-    JFrame frame;
-
-    public TmpWindow() {
-        setLayout(new BorderLayout());
-        add(browser);
-        new GraphAdapter(browser);
-    }
-
-    public void showInFrame(Graph graph) {
-        if (frame == null) {
-            frame = new JFrame();
-            frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-            frame.setContentPane(this);
-            frame.pack();
+        for (Way way : source.ways) {
+            if (way.containsKey(tagName)) {
+                add(way);
+            }
         }
-        frame.setVisible(true);
-        setGraph(graph);
+        for (Relation relation : source.relations) {
+            if (relation.containsKey(tagName)) {
+                add(relation);
+            }
+        }
+
     }
 
-    void setGraph(Graph graph) {
-        browser.setGraph(graph);
-        browser.reset();
+}
+
+
+class ElementListModel extends DefaultListModel<GraphElement> {
+
+    public ElementListModel(Graph source, String key) {
+
+        for (Node node : source.nodes) {
+            if (node.containsKey(key)) {
+                addElement(node);
+            }
+        }
+        for (Way way : source.ways) {
+            if (way.containsKey(key)) {
+                addElement(way);
+            }
+        }
+        for (Relation r : source.relations) {
+            if (r.containsKey(key)) {
+                addElement(r);
+            }
+        }
+
+    }
+
+}
+
+class TagListModel extends DefaultListModel {
+
+    public TagListModel(Graph source) {
+        HashSet<String> set = new HashSet<>();
+        for (Node node : source.nodes) {
+            for (String key : node.keySet()) {
+                set.add(key);
+            }
+        }
+        for (Way way : source.ways) {
+            for (String key : way.keySet()) {
+                set.add(key);
+            }
+        }
+
+        for (Relation r : source.relations) {
+            for (String key : r.keySet()) {
+                set.add(key);
+            }
+        }
+        ArrayList<String> sorted = new ArrayList<>(set);
+        Collections.sort(sorted);
+        for (String k : sorted) {
+            addElement(k);
+        }
+
     }
 
 }
@@ -65,163 +111,99 @@ class TmpWindow extends JPanel {
  *
  * @author viljinsky
  */
-public class Test4 extends Base implements CommandManager.CommandListener {
+public class Test4 extends Base implements ListSelectionListener, FileManager.FileManagerListener {
 
-    Graph graphFromRelation(Graph source, Relation relation) {
-        Graph graph = new Graph();
-
-        for (Member m : relation) {
-            switch (m.type) {
-                case "way":
-                    Way w = source.wayById(m.ref);
-                    if (w != null) {
-                        Way w2 = new Way();
-                        for (Node n : w) {
-                            if (source.nodeById(n.id) == null) {
-                                continue;
-                            }
-                            w2.add(n);
-                        }
-                        graph.add(w2);
-                    }
-                    break;
-                case "node":
-//                            System.out.println("->node.id " + m.ref + " " + (g.nodeById(m.ref) == null ? "not found" : "OK"));
-                    Node node = source.nodeById(m.ref);
-                    if (node != null) {
-                        graph.add(node);
-                    }
-                    break;
-                case "relation":
-//                            System.out.println("->relation.id " + m.ref + " " + (g.relationById(m.ref) == null ? "not found" : "OK"));
-                    break;
-            }
-        }
-
-        return graph;
-    }
-
-    TmpWindow tmpWindow = new TmpWindow();
-
-    public static final String CMD1 = "cmd1";
-    public static final String CMD2 = "cmd2";
-    public static final String CMD3 = "cmd3";
-    public static final String CMD4 = "cmd4";
-
-    class Adapter3 extends MouseAdapter {
-
-        @Override
-        public void mousePressed(MouseEvent e) {
-            nodes.clearSelection();
-            ways.clearSelection();
-            Node node = browser.nodeAt(e.getPoint());
-            if (node != null) {
-                nodes.setSelectedValue(node, true);
-                return;
-            }
-            for (Way way : browser.graph.ways) {
-
-                if (browser.nodeRectangle(way.center()).contains(e.getPoint())) {
-                    ways.setSelectedValue(way, true);
-                    return;
-                }
-            }
-            System.out.println("not found");
-        }
-
-    }
-
-    Adapter3 adapter = new Adapter3();
-
-    TagValues tagList = new TagValues();
-    GraphElementList relations = new GraphElementList(tagList);
-    GraphElementList nodes = new GraphElementList(tagList);
-    GraphElementList ways = new GraphElementList(tagList);
+    JList<String> tagList = new JList<>();
+    JList<GraphElement> elements = new JList<>();
+    TagValues tagValues = new TagValues();
+    Graph graph;
+    FileManager fileManager = new FileManager(this);
+    Browser browser = new Browser();
+    StatusBar statusBar = new StatusBar();
 
     @Override
-    public void doCommand(String command) {
-        try {
-            switch (command) {
-                case CMD1:
-                    break;
-                case CMD2:
-                    break;
-                case CMD3:
-                case CMD4:
-                    showMessage(command);
-                    break;
-                default:
-                    throw new UnsupportedOperationException("unsupported yet");
-            }
-        } catch (Exception e) {
-            showErrorMessage(e.getMessage());
-        }
+    public void onGraphNew(FileManager.FileManagerEvent e) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    String[] commands = {CMD1, CMD2, CMD3, null, CMD4};
+    @Override
+    public void onGraphOpen(FileManager.FileManagerEvent e) {
 
-    CommandManager commmandManager = new CommandManager(this, commands);
+        graph = e.getGraph();
+        tagList.setModel(new TagListModel(graph));
+        tagList.setSelectedValue("building", true);
+        setStatusText(e.getFile().getName());
+    }
+
+    @Override
+    public void onGraphSave(FileManager.FileManagerEvent e) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public Graph filter(Graph source, String key) {
+
+        Graph result = new GraphFilter(source, key);
+
+        DefaultListModel<GraphElement> m = new ElementListModel(result, key);
+        for (int i = 0; i < m.size(); i++) {
+            if (!m.get(i).containsKey(key)) {
+                System.err.println(m.get(i));
+            }
+        }
+
+        elements.setModel(m);
+
+        return result;
+    }
+
+    @Override
+    public void valueChanged(ListSelectionEvent e) {
+        if (!e.getValueIsAdjusting()) {
+            Graph g = filter(graph, tagList.getSelectedValue());
+            browser.setGraph(g);
+            browser.reset();
+        }
+    }
 
     @Override
     public void windowOpened(WindowEvent e) {
 
-        try{
-        
-        Graph graph = new GraphManager.Graph4();
-        relations.setValues(graph.relations);
-        nodes.setValues(graph.nodes);
-        ways.setValues(graph.ways);
-        browser.setGraph(graph);
-        browser.reset();
-        browser.setAdapter(adapter);
-        ways.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent e) {
-                Graph g = browser.graph;
-                Way way = (Way) ways.getSelectedValue();
-                System.out.println(way);
-                for (Node node : way) {
-                    System.out.println(node + " " + (g.nodeById(node.id) == null ? "not found" : "OK"));
-//                    System.out.println("->"+node.toString()+" "+ g.nodeById(node.id)== null? "not found":"OK");
-                }
-            }
-
-        });
-        relations.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent e) {
-
-                Relation rel = (Relation) relations.getSelectedValue();
-                Graph graph = graphFromRelation(browser.graph, rel);
-//                tmpWindow.setGraph(graph);
-
-                tmpWindow.showInFrame(browser.graph);
-            }
-
-        });
-        } catch (Exception h){
-            h.printStackTrace();
+        File file = fileManager.lastOpennedFile();
+        if (file != null) try {
+            fileManager.open(file);
+        } catch (Exception h) {
+            System.err.println(h.getMessage());
         }
-
     }
 
-    Browser browser = new Browser();
+    void setStatusText(String text) {
+        statusBar.setStatusText(text);
+    }
 
     public Test4() {
-        super();
+        add(statusBar, BorderLayout.PAGE_END);
+        addMenu(fileManager.menu());
         add(browser);
-        new GraphAdapter(browser);
-        addMenu(commmandManager.menu("Menu"));
-        add(commmandManager.commandBar(), BorderLayout.PAGE_START);
-
-        SideBar sideBar = new SideBar(nodes.view(), ways.view(), relations.view(), tagList.view());
+        SideBar sideBar = new SideBar(new JScrollPane(tagList), new JScrollPane(elements), tagValues.view());
         add(sideBar, BorderLayout.EAST);
+        tagList.addListSelectionListener(this);
+        GraphAdapter adapter = new GraphAdapter();
+        adapter.setBrowser(browser);
+        elements.addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                GraphElement el = elements.getSelectedValue();
+                tagValues.setValues(el);
+            }
+        });
+        browser.setDefaultRenderer(new BuildingRenderer());
+        browser.addChangeListener(e->{
+            setStatusText(browser.statusText());
+        });
 
     }
 
     public static void main(String[] args) {
         new Test4().execute();
-
     }
 
 }

@@ -126,7 +126,7 @@ public class FileManager implements CommandManager.CommandListener {
     }
 
     public File lastOpennedFile() {
-        File file = new File(System.getProperty("user.home") + "/osm", "test2.osm");
+        File file = new File(System.getProperty("user.home") + "/osm", "test.osm");
         return file.exists() ? file : null;
     }
 
@@ -162,7 +162,6 @@ public class FileManager implements CommandManager.CommandListener {
     public void save_as() {
     }
 
-    GraphAdapter2 adapter2;
 
     public void create() {
         listener.onGraphNew(new FileManagerEvent(this));

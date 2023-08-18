@@ -41,17 +41,17 @@ public class Browser extends JComponent implements ChangeListener {
         return renderer;
     }
     
-    public void setAdapter(MouseAdapter adapter){       
-        addMouseListener(adapter);
-        addMouseMotionListener(adapter);
-        addMouseWheelListener(adapter);
-    }
-    
-    public void removeMousAdapter(MouseAdapter adapter){
-        removeMouseListener(adapter);
-        removeMouseMotionListener(adapter);
-        removeMouseWheelListener(adapter);
-    }
+//    public void setAdapter(MouseAdapter adapter){       
+//        addMouseListener(adapter);
+//        addMouseMotionListener(adapter);
+//        addMouseWheelListener(adapter);
+//    }
+//    
+//    public void removeMousAdapter(MouseAdapter adapter){
+//        removeMouseListener(adapter);
+//        removeMouseMotionListener(adapter);
+//        removeMouseWheelListener(adapter);
+//    }
     
     @Override
     public void stateChanged(ChangeEvent e) {
