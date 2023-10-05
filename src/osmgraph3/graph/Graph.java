@@ -91,8 +91,28 @@ public class Graph implements GraphElement {
 
 
     public void remove(Node node) {
+        for(Way way:ways){
+            if (way.contains(node)){
+                way.remove(node);
+                if (way.size()<2){
+                    ways.remove(way);
+                }
+            }
+        }
         nodes.remove(node);
         change();
+    }
+    
+    public void remove(Way way){
+        for(Node node:way){
+            nodes.remove(node);
+        }
+        ways.remove(way);
+        change();
+    }
+    
+    public void remove(Relation relation) {
+        throw new UnsupportedOperationException();
     }
 
     @Override

@@ -35,6 +35,7 @@ public class Browser extends JComponent implements ChangeListener {
     
     public void setDefaultRenderer(GraphRenderer renderer){
         this.renderer = renderer;
+        repaint();
     }
     
     protected GraphRenderer getGraphRenedere(Graph graph){

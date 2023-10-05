@@ -70,8 +70,14 @@ public class GraphElementList extends JList implements ListSelectionListener {
 
     public void remove(Object element) {
 //        list.remove(element);
+        int index = list.indexOf(element);
         model = new MyModel();
         setModel(model);
+        if (index<list.size()){
+            setSelectedIndex(index);
+        } else {
+            setSelectedIndex(list.size()-1);
+        }
     }
 
     public void clear() {

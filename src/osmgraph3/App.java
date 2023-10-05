@@ -123,7 +123,7 @@ class App extends Base implements CommandManager.CommandListener, FileManager.Fi
                     browser.graph.clear();
                     break;
                 default:
-                    showErrorMessage("command \"" + command + "\" - unsupported yet");
+                    showMessage(new Exception("command \"" + command + "\" - unsupported yet"));
             }
         } catch (Exception e) {
             showMessage(e.getMessage());
@@ -150,12 +150,20 @@ class App extends Base implements CommandManager.CommandListener, FileManager.Fi
     
     @Override
     public void windowOpened(WindowEvent e) {
-        try {
-            String home = System.getProperty("user.home");
-            fileManager.open(new File(home+"/osm", "test.osm"));
-        } catch (Exception h) {
-            showErrorMessage(h.getMessage());
+        File file = fileManager.lastOpennedFile();
+        if (file!=null){
+            try{
+             fileManager.open(file);
+            } catch (Exception h){
+                showMessage("open "+h.getMessage());
+            }
         }
+//        try {
+//            String home = System.getProperty("user.home");
+//            fileManager.open(new File(home+"/osm", "test.osm"));
+//        } catch (Exception h) {
+//            showErrorMessage(h.getMessage());
+//        }
     }
     
     public App() {

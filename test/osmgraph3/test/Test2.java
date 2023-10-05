@@ -154,7 +154,7 @@ public class Test2 extends Base implements CommandManager.CommandListener {
                     throw new UnsupportedOperationException("unsupported yet");
             }
         } catch (Exception e) {
-            showErrorMessage(e.getMessage());
+            showMessage(e);
         }
     }
 

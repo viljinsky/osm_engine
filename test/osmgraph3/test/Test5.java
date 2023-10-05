@@ -6,20 +6,30 @@ package osmgraph3.test;
 
 import java.awt.BorderLayout;
 import java.awt.Point;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.WindowEvent;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import osmgraph3.Base;
 import osmgraph3.CommandManager;
 import osmgraph3.SideBar;
+import osmgraph3.StatusBar;
 import osmgraph3.controls.Browser;
+import osmgraph3.controls.BuildingRenderer;
+import osmgraph3.controls.FileManager;
 import osmgraph3.controls.GraphElementList;
 import osmgraph3.controls.GraphManager;
+import osmgraph3.controls.GraphRenderer;
 import osmgraph3.controls.TagValues;
 import osmgraph3.graph.Edge;
 import osmgraph3.graph.Graph;
+import osmgraph3.graph.GraphElement;
 import osmgraph3.graph.Node;
+import osmgraph3.graph.Relation;
 import osmgraph3.graph.Way;
 
 class DefaultGraphAdapter extends MouseAdapter {
@@ -57,6 +67,12 @@ class DefaultGraphAdapter extends MouseAdapter {
 
     public void wayRemove(Way way) {
     }
+    
+    public void nodeClick(Node node){
+    }
+    
+    public void wayClick(Way way){
+    }
 
     @Override
     public void mouseWheelMoved(MouseWheelEvent e) {
@@ -70,6 +86,24 @@ class DefaultGraphAdapter extends MouseAdapter {
     @Override
     public void mousePressed(MouseEvent e) {
         start = e.getPoint();
+        for(Node node:browser.graph.nodes){
+            if (browser.nodeRectangle(node).contains(e.getPoint())){
+                nodeClick(node);
+                return;
+            }
+        }
+        for(Way way:browser.graph.ways){
+            if (browser.nodeRectangle(way.center()).contains(e.getPoint())){
+                wayClick(way);
+                return;
+            }
+            for(Edge edge:way.edges() ){
+                if (browser.nodeRectangle(edge.center()).contains(e.getPoint())){
+                    wayClick(way);
+                    return;
+                }
+            }
+        }
     }
 
     @Override
@@ -91,11 +125,12 @@ class DefaultGraphAdapter extends MouseAdapter {
 
 }
 
+// просмотр
 class GraphAdapter0 extends DefaultGraphAdapter {
-
 
 }
 
+// росовние путей
 class GraphAdapter1 extends DefaultGraphAdapter {
 
     Way way;
@@ -135,7 +170,7 @@ class GraphAdapter1 extends DefaultGraphAdapter {
     }
 
 }
-
+// Перемечение путей точе и рёбр
 class GraphAdapter2 extends DefaultGraphAdapter {
 
     Node selectedNode;
@@ -147,15 +182,6 @@ class GraphAdapter2 extends DefaultGraphAdapter {
     public void nodeAdd(Node node) {
     }
 
-//    public void click(MouseEvent e) {
-//        Node node = browser.node(e.getPoint());
-//        browser.graph.add(node);
-//        browser.repaint();
-//
-//        nodeAdd(node);
-//
-//        System.out.println("click");
-//    }
     public void nodeClick(Node node) {
         selectedNode = node;
         System.out.println("pressed " + node);
@@ -210,18 +236,6 @@ class GraphAdapter2 extends DefaultGraphAdapter {
         }
     }
 
-//    @Override
-//    public void mouseDragged(MouseEvent e) {
-//        if (selectedNode != null) {
-//            System.out.println("drag " + selectedNode);
-//        }
-//        if (selectedEdge != null) {
-//            System.out.println("drag " + selectedEdge);
-//        }
-//        if (selectedWay != null) {
-//            System.out.println("drag " + selectedWay);
-//        }
-//    }
     @Override
     public void mousePressed(MouseEvent e) {
 
@@ -267,17 +281,100 @@ class GraphAdapter2 extends DefaultGraphAdapter {
 
 }
 
+class GraphAdapter3 extends DefaultGraphAdapter{
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+//        super.mousePressed(e); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/OverriddenMethodBody
+        Node node = browser.nodeAt(e.getPoint());
+        if (node == null){
+            node = browser.node(e.getPoint());
+        }
+        browser.graph.add(node);
+        nodeAdd(node);
+    }
+    
+}
+
 /**
  *
  * @author viljinsky
  */
-public class Test5 extends Base implements CommandManager.CommandListener {
+public class Test5 extends Base implements 
+        CommandManager.CommandListener,
+        FileManager.FileManagerListener ,
+        ListSelectionListener
+{
+
+    @Override
+    public void valueChanged(ListSelectionEvent e) {
+        GraphElementList list = (GraphElementList)e.getSource();
+        GraphElement element = (GraphElement)list.getSelectedValue();
+        if (element!=null){
+            tagValues.setValues(element);
+        }
+    }
+    
+    
+
+    @Override
+    public void onGraphNew(FileManager.FileManagerEvent e) {
+        
+        Graph graph = new Graph();
+        browser.setGraph(graph);
+        nodes.setValues(graph.nodes);
+        ways.setValues(graph.ways);
+        relations.setValues(graph.relations);
+        
+        
+        browser.reset();
+        
+        
+    }
+
+    GraphElementList relations = new GraphElementList();
+    
+    @Override
+    public void onGraphOpen(FileManager.FileManagerEvent e) {
+        Graph graph = e.getGraph();
+        browser.setGraph(graph);
+        nodes.setValues(graph.nodes);
+        ways.setValues(graph.ways);
+        relations.setValues(graph.relations);
+        
+        
+        browser.reset();
+    }
+
+    @Override
+    public void onGraphSave(FileManager.FileManagerEvent e) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+    
+    
+    FileManager fileManager = new FileManager(this);
+    
+    StatusBar statusBar = new StatusBar();
+    
+    public void setStatusText(String text){
+        statusBar.setStatusText(text);
+    }
 
     DefaultGraphAdapter adapter;
+    
+    GraphRenderer renderer0 = new GraphRenderer();
+    
+    GraphRenderer renderer1 = new BuildingRenderer();
+    
+    GraphRenderer renderer = renderer0;
 
     public static final String ADAPTER0 = "adatpter0";
     public static final String ADAPTER1 = "adapter1";
     public static final String ADAPTER2 = "adapter2";
+    public static final String ADAPTER3 = "adapter3";
+    
+    public static final String RENDERER0  = "renderer0";
+    public static final String RENDERER1 = "renderer1";
 
     void setAdapter(DefaultGraphAdapter adapter) {
         if (this.adapter != null) {
@@ -290,6 +387,12 @@ public class Test5 extends Base implements CommandManager.CommandListener {
     @Override
     public void doCommand(String command) {
         switch (command) {
+            case RENDERER0:
+                browser.setDefaultRenderer(renderer0);
+                break;
+            case RENDERER1:
+                browser.setDefaultRenderer(renderer1);
+                break;
             case ADAPTER0:
                 setAdapter(adapter0);
                 break;
@@ -299,18 +402,41 @@ public class Test5 extends Base implements CommandManager.CommandListener {
             case ADAPTER2:
                 setAdapter(adapter2);
                 break;
+            case ADAPTER3:
+                setAdapter(adapter3);
+                break;
         }
     }
 
-    CommandManager commandManager = new CommandManager(this, ADAPTER0, ADAPTER1, ADAPTER2);
+    CommandManager commandManager = new CommandManager(this, ADAPTER0, ADAPTER1, ADAPTER2,ADAPTER3,null,RENDERER0,RENDERER1);
 
     Browser browser = new Browser();
     GraphElementList nodes = new GraphElementList();
     GraphElementList ways = new GraphElementList();
     TagValues tagValues = new TagValues();
-    SideBar sideBar = new SideBar(nodes.view(), ways.view(), tagValues.view());
+    SideBar sideBar = new SideBar(nodes.view(), ways.view(),relations.view(), tagValues.view());
 
-    DefaultGraphAdapter adapter0 = new GraphAdapter0();
+    DefaultGraphAdapter adapter0 = new GraphAdapter0(){
+        @Override
+        public void wayClick(Way way) {
+            ways.setSelectedValue(way, true);
+        }
+
+        @Override
+        public void nodeClick(Node node) {
+            nodes.setSelectedValue(node, true);
+        }
+        
+    };
+    
+    DefaultGraphAdapter adapter3 = new GraphAdapter3(){
+        @Override
+        public void nodeAdd(Node node) {
+            nodes.add(node);
+        }
+        
+    };
+    
     DefaultGraphAdapter adapter2 = new GraphAdapter2() {
         @Override
         public void wayRemove(Way way) {
@@ -359,19 +485,60 @@ public class Test5 extends Base implements CommandManager.CommandListener {
 
     @Override
     public void windowOpened(WindowEvent e) {
-        Graph graph = new GraphManager.Graph1();
+        Graph graph = new Graph();//GraphManager.Graph1();
         browser.setGraph(graph);
         nodes.setValues(graph.nodes);
         ways.setValues(graph.ways);
         browser.reset();
         setAdapter(adapter0);
     }
+    
+    class ElementListListener extends KeyAdapter{
+
+        @Override
+        public void keyPressed(KeyEvent e) {
+            switch(e.getKeyCode()){
+                case KeyEvent.VK_DELETE:
+                    GraphElementList list = (GraphElementList)e.getSource();
+                    Object obj = list.getSelectedValue();
+                    System.out.println("DELETE:"+ obj);
+                    if (obj instanceof Node){
+                        browser.graph.remove((Node)obj);
+                        list.remove(obj);
+                    }
+                    if (obj instanceof Way){
+                        browser.graph.remove((Way)obj);
+                        list.remove(obj);
+                    }
+                    
+                    if (obj instanceof Relation){
+                        browser.graph.remove((Relation)obj);
+                        list.remove(obj);
+                    }
+                    break;
+            }
+        }
+        
+    }
+    
+    ElementListListener keyListener = new ElementListListener();
 
     public Test5() {
         add(browser);
         add(sideBar, BorderLayout.EAST);
+        add(statusBar,BorderLayout.PAGE_END);
         add(commandManager.commandBar(), BorderLayout.PAGE_START);
-//        adapter.setBrowser(browser);
+        
+        nodes.addKeyListener(keyListener);
+        ways.addKeyListener(keyListener);
+        relations.addKeyListener(keyListener);
+        
+        nodes.addListSelectionListener(this);
+        ways.addListSelectionListener(this);        
+        relations.addListSelectionListener(this);
+        
+        addMenu(fileManager.menu());
+                
 
     }
 

@@ -87,7 +87,10 @@ public class Base extends Container implements WindowListener{
         JOptionPane.showMessageDialog(getParent(), message,appName+" Information",JOptionPane.INFORMATION_MESSAGE);
     }
     
-    public void showErrorMessage(String message){
-        JOptionPane.showMessageDialog(getParent(), message,appName+" Error",JOptionPane.ERROR_MESSAGE);
+    public void showMessage(Exception e){
+        JOptionPane.showMessageDialog(getParent(), e.getMessage(),appName+" Error",JOptionPane.ERROR_MESSAGE);
     }
+//    public void showErrorMessage(String message){
+//        JOptionPane.showMessageDialog(getParent(), message,appName+" Error",JOptionPane.ERROR_MESSAGE);
+//    }
 }
